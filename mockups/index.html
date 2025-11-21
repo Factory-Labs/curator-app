@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Curator App - Evaluation Mockups</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 50px;
+        }
+        
+        .header h1 {
+            font-size: 42px;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        
+        .header p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+        
+        .mockup-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .mockup-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            text-decoration: none;
+            color: #1a1a1a;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .mockup-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .mockup-type {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 15px;
+        }
+        
+        .mockup-type.low {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .mockup-type.medium {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .mockup-type.hard {
+            background: #fce7f3;
+            color: #9f1239;
+        }
+        
+        .mockup-card h2 {
+            font-size: 24px;
+            margin-bottom: 12px;
+            color: #1a1a1a;
+        }
+        
+        .mockup-card p {
+            font-size: 15px;
+            line-height: 1.6;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .features {
+            list-style: none;
+            margin-bottom: 20px;
+        }
+        
+        .features li {
+            font-size: 13px;
+            color: #555;
+            padding: 6px 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .features li:before {
+            content: "✓";
+            color: #10b981;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        
+        .view-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        
+        .view-button:hover {
+            transform: scale(1.05);
+        }
+        
+        .info-section {
+            background: white;
+            border-radius: 12px;
+            padding: 35px;
+            margin-top: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .info-section h3 {
+            font-size: 22px;
+            margin-bottom: 15px;
+            color: #1a1a1a;
+        }
+        
+        .info-section p {
+            font-size: 15px;
+            line-height: 1.7;
+            color: #555;
+            margin-bottom: 15px;
+        }
+        
+        .principles {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 25px;
+        }
+        
+        .principle {
+            padding: 20px;
+            background: #f8f9ff;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .principle h4 {
+            font-size: 16px;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+        
+        .principle p {
+            font-size: 13px;
+            color: #666;
+            margin: 0;
+        }
+        
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 50px;
+            opacity: 0.8;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Curator App Evaluation Mockups</h1>
+            <p>AI-Assisted Bounty Evaluation Interfaces</p>
+        </div>
+        
+        <div class="info-section" style="margin-bottom: 30px;">
+            <h3>AI Assistance Approaches</h3>
+            <p>We've created two different approaches to AI assistance. Compare them to see which better preserves editor agency:</p>
+        </div>
+
+        <div class="mockup-grid">
+            <a href="medium-bounty-with-suggestions.html" class="mockup-card">
+                <span class="mockup-type medium">Medium Bounty (AI Suggestions)</span>
+                <h2>With AI Score Suggestions</h2>
+                <p>AI suggests specific scores for each criterion. Risk: editors may anchor to suggestions.</p>
+                <ul class="features">
+                    <li>AI suggests scores (0-3)</li>
+                    <li>"Accept suggestion" buttons</li>
+                    <li>Reasoning provided per criterion</li>
+                    <li>Quick but may reduce independence</li>
+                </ul>
+                <span class="view-button">View Demo →</span>
+            </a>
+            
+            <a href="medium-bounty.html" class="mockup-card">
+                <span class="mockup-type medium">Medium Bounty (Evidence Only)</span>
+                <h2>Evidence-Based Approach</h2>
+                <p>AI provides evidence and analysis without suggesting scores. Promotes independent thinking.</p>
+                <ul class="features">
+                    <li>Evidence-based AI analysis</li>
+                    <li>No suggested scores</li>
+                    <li>Comparisons shown AFTER scoring</li>
+                    <li>Editor-driven decisions</li>
+                </ul>
+                <span class="view-button">View Demo →</span>
+            </a>
+            
+            <a href="low-bounty.html" class="mockup-card">
+                <span class="mockup-type low">Low Bounty</span>
+                <h2>Binary Pass/Fail</h2>
+                <p>Streamlined evaluation for simple submissions with automated criteria checking.</p>
+                <ul class="features">
+                    <li>28 submissions in grid view</li>
+                    <li>Pass/Fail checklist per submission</li>
+                    <li>AI pre-screening results</li>
+                    <li>Real-time payout calculation</li>
+                </ul>
+                <span class="view-button">View Demo →</span>
+            </a>
+            
+            <a href="hard-bounty.html" class="mockup-card">
+                <span class="mockup-type hard">Hard Bounty</span>
+                <h2>Complex Assessment</h2>
+                <p>Multi-tier evaluation with weighted calculations for large datasets.</p>
+                <ul class="features">
+                    <li>4-tier ontology completion</li>
+                    <li>Weighted contribution model</li>
+                    <li>88% threshold enforcement</li>
+                    <li>Quality × Completion formula</li>
+                </ul>
+                <span class="view-button">View Demo →</span>
+            </a>
+        </div>
+        
+        <div class="info-section">
+            <h3>Design Philosophy</h3>
+            <p>We've explored two different AI assistance approaches to help you evaluate which better preserves editor agency:</p>
+            
+            <div style="margin: 25px 0; padding: 20px; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 8px;">
+                <h4 style="margin-bottom: 10px; color: #856404;">Approach A: AI Suggests Scores (With Suggestions)</h4>
+                <p style="margin: 0; color: #856404; font-size: 14px;">AI provides specific score suggestions (e.g., "Suggested Score: 3") with reasoning. Editors can accept or modify. <strong>Risk:</strong> Even with best intentions, editors may anchor to suggested numbers rather than form independent judgments.</p>
+            </div>
+            
+            <div style="margin: 25px 0; padding: 20px; background: #d1fae5; border-left: 4px solid #10b981; border-radius: 8px;">
+                <h4 style="margin-bottom: 10px; color: #065f46;">Approach B: AI Provides Evidence Only (Recommended)</h4>
+                <p style="margin: 0; color: #065f46; font-size: 14px;">AI presents factual analysis and evidence without suggesting scores. Comparisons to past evaluations appear only AFTER editor makes their decision. <strong>Benefit:</strong> Promotes genuine independent thinking while still providing valuable context.</p>
+            </div>
+            
+            <div class="principles">
+                <div class="principle">
+                    <h4>No Suggested Scores</h4>
+                    <p>AI presents analysis and evidence, but never suggests specific scores to prevent anchoring bias.</p>
+                </div>
+                
+                <div class="principle">
+                    <h4>Independent Thinking</h4>
+                    <p>Comparisons to past evaluations appear only AFTER editor makes their decision.</p>
+                </div>
+                
+                <div class="principle">
+                    <h4>Evidence-Based</h4>
+                    <p>AI performs automated checks and presents factual findings for editor interpretation.</p>
+                </div>
+                
+                <div class="principle">
+                    <h4>Transparent Calculations</h4>
+                    <p>All scoring formulas and payout calculations are visible and update in real-time.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="info-section">
+            <h3>Key Features Across All Mockups</h3>
+            <p><strong>Data Access:</strong> Quick access to source data for verification (View Dataset/Submission Data buttons)</p>
+            <p><strong>AI Context Panel:</strong> Can be hidden/shown at any time, giving editors full control over when they want AI input</p>
+            <p><strong>Historical Context:</strong> Past similar evaluations shown for consistency calibration, but only after initial judgment</p>
+            <p><strong>Real-time Feedback:</strong> Live calculation updates help editors understand the impact of their decisions</p>
+        </div>
+        
+        <div class="footer">
+            <p>Factory Labs Limited • Curator App Design System</p>
+        </div>
+    </div>
+</body>
+</html>
