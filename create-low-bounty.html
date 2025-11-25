@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Low Bounty</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #fafafa;
+            color: #1a1a1a;
+        }
+        
+        .header {
+            background: white;
+            border-bottom: 1px solid #e5e5e5;
+            padding: 20px 30px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.1);
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: #1a1a1a;
+        }
+        
+        .header p {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 0 30px 30px;
+        }
+        
+        .form-section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.1);
+        }
+        
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        
+        .form-field {
+            margin-bottom: 25px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+        
+        .form-label.required::after {
+            content: " *";
+            color: #ef4444;
+        }
+        
+        .form-help {
+            font-size: 13px;
+            color: #666;
+            margin-top: 6px;
+            font-style: italic;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e5e5e5;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #7c3aed;
+        }
+        
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .char-counter {
+            text-align: right;
+            font-size: 12px;
+            color: #999;
+            margin-top: 4px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .difficulty-display {
+            background: #d1fae5;
+            border: 2px solid #10b981;
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 600;
+            color: #065f46;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        
+        .alert.info {
+            background: #dbeafe;
+            border: 2px solid #3b82f6;
+            color: #1e40af;
+        }
+        
+        .budget-calculator {
+            background: #f0f9ff;
+            border: 2px solid #3b82f6;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .budget-calculator h4 {
+            font-size: 15px;
+            color: #1e40af;
+            margin-bottom: 12px;
+        }
+        
+        .budget-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 14px;
+        }
+        
+        .budget-row.total {
+            border-top: 2px solid #3b82f6;
+            margin-top: 10px;
+            padding-top: 12px;
+            font-weight: 700;
+            font-size: 16px;
+            color: #1e40af;
+        }
+        
+        .timeline-visual {
+            background: #f9fafb;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .timeline-visual h4 {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 15px;
+        }
+        
+        .timeline-bar {
+            position: relative;
+            height: 40px;
+            background: #e0e0e0;
+            border-radius: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .timeline-segment {
+            position: absolute;
+            top: 0;
+            height: 100%;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: white;
+        }
+        
+        .timeline-segment.start {
+            background: #7c3aed;
+            left: 0;
+        }
+        
+        .timeline-segment.active {
+            background: #3b82f6;
+        }
+        
+        .timeline-segment.evaluation {
+            background: #f59e0b;
+            right: 0;
+        }
+        
+        .timeline-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #666;
+            margin-top: 10px;
+        }
+        
+        .criteria-checklist {
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 20px;
+            background: #fafafa;
+        }
+        
+        .criteria-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 15px;
+            background: white;
+            border: 1px solid #e5e5e5;
+            border-radius: 6px;
+            margin-bottom: 12px;
+        }
+        
+        .criteria-checkbox {
+            width: 20px;
+            height: 20px;
+            margin-top: 2px;
+            cursor: pointer;
+        }
+        
+        .criteria-content {
+            flex: 1;
+        }
+        
+        .criteria-title {
+            font-weight: 600;
+            font-size: 14px;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+        
+        .criteria-config {
+            display: none;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .criteria-config.visible {
+            display: block;
+        }
+        
+        .criteria-input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 8px;
+        }
+        
+        .criteria-input-group label {
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .criteria-input-group input[type="number"] {
+            width: 100px;
+            padding: 6px 10px;
+            border: 1px solid #e5e5e5;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        
+        .custom-criterion-item {
+            background: #f9fafb;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            padding: 12px;
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+        
+        .custom-criterion-item input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #e5e5e5;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        
+        .remove-criterion-btn {
+            background: #fee2e2;
+            border: none;
+            color: #991b1b;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        
+        .remove-criterion-btn:hover {
+            background: #fecaca;
+        }
+        
+        .add-custom-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        .add-custom-btn:hover {
+            background: #5568d3;
+        }
+        
+        .criteria-summary {
+            background: #f0f9ff;
+            border: 2px solid #3b82f6;
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-top: 15px;
+            font-size: 13px;
+            color: #1e40af;
+            font-weight: 600;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            padding: 20px 0;
+            border-top: 1px solid #e5e5e5;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: #7c3aed;
+            color: white;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            background: #6d28d9;
+        }
+        
+        .btn-primary:disabled {
+            background: #d1d5db;
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #666;
+        }
+        
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+        
+        .validation-message {
+            display: none;
+            background: #fee2e2;
+            border: 2px solid #ef4444;
+            color: #991b1b;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        
+        .validation-message.visible {
+            display: block;
+        }
+        
+        .validation-list {
+            margin-top: 10px;
+            padding-left: 20px;
+        }
+        
+        .validation-list li {
+            margin: 5px 0;
+        }
+        
+        .contributor-toggle {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .toggle-option {
+            flex: 1;
+            padding: 15px;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        
+        .toggle-option:hover {
+            border-color: #7c3aed;
+        }
+        
+        .toggle-option.selected {
+            border-color: #7c3aed;
+            background: #f0f4ff;
+        }
+        
+        .toggle-option input[type="radio"] {
+            display: none;
+        }
+        
+        .toggle-label {
+            font-weight: 600;
+            font-size: 14px;
+            color: #1a1a1a;
+            display: block;
+            margin-bottom: 4px;
+        }
+        
+        .toggle-description {
+            font-size: 12px;
+            color: #666;
+        }
+    
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 72px;
+            height: 100vh;
+            background: white;
+            border-right: 1px solid #e5e5e5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+            gap: 20px;
+            z-index: 100;
+        }
+        
+        .sidebar-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+            color: #666;
+            font-size: 20px;
+        }
+        
+        .sidebar-icon:hover {
+            background: #f5f5f5;
+        }
+        
+        .sidebar-icon.active {
+            background: #ede9fe;
+            color: #7c3aed;
+        }
+        
+        .main-wrapper {
+            margin-left: 72px;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-left {
+            flex: 1;
+        }
+        
+        .header-subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-top: 4px;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .points-badge {
+            background: #ede9fe;
+            color: #7c3aed;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .points-icon {
+            width: 16px;
+            height: 16px;
+            background: #7c3aed;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 10px;
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-icon">☰</div>
+        <div class="sidebar-icon active">◎</div>
+        <div class="sidebar-icon">◇</div>
+    </div>
+    
+    <div class="main-wrapper">
+
+    <div class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <h1>Create Low Bounty</h1>
+                <p class="header-subtitle">Set up a high-volume, entry-level task with binary pass/fail evaluation</p>
+            </div>
+            <div class="header-right">
+                <div class="points-badge">
+                    <div class="points-icon">△</div>
+                    3000
+                </div>
+                <div class="user-avatar"></div>
+            </div>
+        </div>
+</div>
+
+    <div class="container">
+        <div class="alert info">
+            <strong>ℹ️ Low Bounty Format</strong><br>
+            Low bounties are for simple, high-volume tasks. All submissions are evaluated pass/fail, and the total budget is divided equally among all passing submissions.
+        </div>
+
+        <form id="bountyForm">
+            <!-- Basic Information -->
+            <div class="form-section">
+                <h2 class="section-title">Basic Information</h2>
+                
+                <div class="form-field">
+                    <label class="form-label required">Title</label>
+                    <input type="text" class="form-input" id="title" maxlength="100" 
+                           placeholder="e.g., Write podcast reviews" required>
+                    <div class="char-counter"><span id="titleCount">0</span>/100</div>
+                </div>
+                
+                <div class="form-field">
+                    <label class="form-label required">Description</label>
+                    <textarea class="form-input form-textarea" id="description" maxlength="1000"
+                              placeholder="Detailed explanation of what's needed..." required></textarea>
+                    <div class="char-counter"><span id="descCount">0</span>/1000</div>
+                    <div class="form-help">Explain clearly what contributors should do</div>
+                </div>
+                
+                <div class="form-field">
+                    <label class="form-label required">Scope</label>
+                    <textarea class="form-input form-textarea" id="scope" maxlength="500"
+                              placeholder="What's in scope / What's out of scope..." required></textarea>
+                    <div class="char-counter"><span id="scopeCount">0</span>/500</div>
+                    <div class="form-help">Define boundaries: what's included and what's not</div>
+                </div>
+            </div>
+
+            <!-- Bounty Parameters -->
+            <div class="form-section">
+                <h2 class="section-title">Bounty Parameters</h2>
+                
+                <div class="form-field">
+                    <label class="form-label">Difficulty Level</label>
+                    <div class="difficulty-display">LOW</div>
+                </div>
+                
+                <div class="form-field">
+                    <label class="form-label required">Max Contributors</label>
+                    <div class="contributor-toggle">
+                        <label class="toggle-option selected" id="unlimitedOption">
+                            <input type="radio" name="contributorLimit" value="unlimited" checked onchange="toggleContributorLimit()">
+                            <span class="toggle-label">Unlimited</span>
+                            <span class="toggle-description">Open to all qualified contributors</span>
+                        </label>
+                        <label class="toggle-option" id="limitedOption">
+                            <input type="radio" name="contributorLimit" value="limited" onchange="toggleContributorLimit()">
+                            <span class="toggle-label">Set Cap</span>
+                            <span class="toggle-description">Limit number of contributors</span>
+                        </label>
+                    </div>
+                    <div id="contributorCapInput" style="display: none;">
+                        <input type="number" class="form-input" id="contributorCap" 
+                               min="10" max="1000" value="100" placeholder="e.g., 100">
+                        <div class="form-help">Maximum number of contributors allowed</div>
+                    </div>
+                </div>
+                
+                <div class="form-field">
+                    <label class="form-label">Max Submissions Per User</label>
+                    <div class="contributor-toggle">
+                        <label class="toggle-option selected" id="unlimitedSubmissionsOption">
+                            <input type="radio" name="submissionLimit" value="unlimited" checked onchange="toggleSubmissionLimit()">
+                            <span class="toggle-label">Unlimited</span>
+                            <span class="toggle-description">Users can submit as many as they want</span>
+                        </label>
+                        <label class="toggle-option" id="limitedSubmissionsOption">
+                            <input type="radio" name="submissionLimit" value="limited" onchange="toggleSubmissionLimit()">
+                            <span class="toggle-label">Set Limit</span>
+                            <span class="toggle-description">Cap submissions per user</span>
+                        </label>
+                    </div>
+                    <div id="submissionLimitInput" style="display: none;">
+                        <input type="number" class="form-input" id="submissionLimit" 
+                               min="1" max="100" value="5" placeholder="e.g., 5">
+                        <div class="form-help">Maximum submissions per user (prevents gaming with high-volume automation)</div>
+                    </div>
+                </div>
+                
+                <div class="form-field">
+                    <label class="form-label required">Total Allocated Budget</label>
+                    <input type="number" class="form-input" id="totalBudget" 
+                           min="1000" step="1000" value="50000" placeholder="50,000" required>
+                    <div class="form-help">Total point pool divided equally among passing submissions</div>
+                </div>
+                
+                <div class="form-field">
+                    <label class="form-label required">Reward Per Passing Submission</label>
+                    <input type="number" class="form-input" id="rewardAmount" 
+                           min="10" step="10" value="50" placeholder="50" required>
+                    <div class="form-help">All passing submissions receive equal share (typically 50-500 points)</div>
+                </div>
+                
+                <div class="budget-calculator">
+                    <h4>Budget Calculator</h4>
+                    <div class="budget-row">
+                        <span>Total Budget:</span>
+                        <span id="calcBudget">50,000 points</span>
+                    </div>
+                    <div class="budget-row">
+                        <span>Reward Per Pass:</span>
+                        <span id="calcReward">50 points</span>
+                    </div>
+                    <div class="budget-row total">
+                        <span>Can Support:</span>
+                        <span id="calcMaxPasses">1,000 passing submissions</span>
+                    </div>
+                </div>
+                
+                <div class="form-row" style="margin-top: 25px;">
+                    <div class="form-field">
+                        <label class="form-label required">Bounty Start Date</label>
+                        <input type="datetime-local" class="form-input" id="startDate" required>
+                        <div class="form-help">When bounty becomes active</div>
+                    </div>
+                    
+                    <div class="form-field">
+                        <label class="form-label required">Active Until</label>
+                        <input type="datetime-local" class="form-input" id="activeUntil" required>
+                        <div class="form-help">When submissions close</div>
+                    </div>
+                </div>
+                
+                <div class="form-field">
+                    <label class="form-label required">Deadline</label>
+                    <input type="datetime-local" class="form-input" id="deadline" required>
+                    <div class="form-help">Final evaluation deadline</div>
+                </div>
+                
+                <div class="timeline-visual">
+                    <h4>Timeline Overview</h4>
+                    <div class="timeline-bar">
+                        <div class="timeline-segment start" style="width: 33%;">Start</div>
+                        <div class="timeline-segment active" style="left: 33%; width: 34%;">Active Period</div>
+                        <div class="timeline-segment evaluation" style="width: 33%;">Evaluation</div>
+                    </div>
+                    <div class="timeline-labels">
+                        <span>Bounty Opens</span>
+                        <span>Submissions Close</span>
+                        <span>Results Published</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Evaluation Standards -->
+            <div class="form-section">
+                <h2 class="section-title">Evaluation Standards</h2>
+                
+                <div class="form-field">
+                    <label class="form-label required">Threshold Criteria Description</label>
+                    <textarea class="form-input form-textarea" id="thresholdDescription" 
+                              placeholder="Describe what makes a passing submission..." required></textarea>
+                    <div class="form-help">Define the overall quality bar for passing submissions</div>
+                </div>
+                
+                <div class="form-field" style="margin-top: 30px;">
+                    <label class="form-label">Pass/Fail Checklist Criteria (Optional)</label>
+                    <p style="font-size: 13px; color: #666; margin-bottom: 15px;">
+                        Add automated checks to help evaluate submissions. All enabled criteria must pass.
+                    </p>
+                    
+                    <div class="criteria-checklist">
+                        <!-- Minimum Character Count -->
+                        <div class="criteria-item">
+                            <input type="checkbox" class="criteria-checkbox" id="checkMinChars" 
+                                   onchange="toggleCriteriaConfig('minChars')">
+                            <div class="criteria-content">
+                                <div class="criteria-title">Minimum Character Count</div>
+                                <div class="criteria-config" id="configMinChars">
+                                    <div class="criteria-input-group">
+                                        <label>At least:</label>
+                                        <input type="number" id="minCharsValue" min="1" max="10000" value="100">
+                                        <label>characters</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Maximum Character Count -->
+                        <div class="criteria-item">
+                            <input type="checkbox" class="criteria-checkbox" id="checkMaxChars" 
+                                   onchange="toggleCriteriaConfig('maxChars')">
+                            <div class="criteria-content">
+                                <div class="criteria-title">Maximum Character Count</div>
+                                <div class="criteria-config" id="configMaxChars">
+                                    <div class="criteria-input-group">
+                                        <label>No more than:</label>
+                                        <input type="number" id="maxCharsValue" min="1" max="10000" value="500">
+                                        <label>characters</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Human Generated -->
+                        <div class="criteria-item">
+                            <input type="checkbox" class="criteria-checkbox" id="checkHumanGenerated">
+                            <div class="criteria-content">
+                                <div class="criteria-title">Appears to be Human Generated (Editor Judgement)</div>
+                                <div style="font-size: 13px; color: #666; margin-top: 4px;">
+                                    Content must appear to be written by a human, not AI-generated
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Cites Source -->
+                        <div class="criteria-item">
+                            <input type="checkbox" class="criteria-checkbox" id="checkCitesSource">
+                            <div class="criteria-content">
+                                <div class="criteria-title">Cites Source</div>
+                                <div style="font-size: 13px; color: #666; margin-top: 4px;">
+                                    Must include at least one verifiable source or reference
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- No Profanity or Spam -->
+                        <div class="criteria-item">
+                            <input type="checkbox" class="criteria-checkbox" id="checkNoProfanity">
+                            <div class="criteria-content">
+                                <div class="criteria-title">No Profanity or Spam</div>
+                                <div style="font-size: 13px; color: #666; margin-top: 4px;">
+                                    Content must be appropriate and not contain spam patterns
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Custom Criteria -->
+                        <div class="criteria-item">
+                            <input type="checkbox" class="criteria-checkbox" id="checkCustom" 
+                                   onchange="toggleCriteriaConfig('custom')">
+                            <div class="criteria-content">
+                                <div class="criteria-title">Other Custom Criteria</div>
+                                <div class="criteria-config" id="configCustom">
+                                    <div id="customCriteriaContainer">
+                                        <!-- Custom criteria will be added here -->
+                                    </div>
+                                    <button type="button" class="add-custom-btn" onclick="addCustomCriterion()">
+                                        + Add Custom Criterion
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="criteria-summary" id="criteriaSummary">
+                        <strong>0 criteria selected</strong> - At least one criterion required
+                    </div>
+                </div>
+            </div>
+
+            <div class="validation-message" id="validationMessage">
+                <strong>Cannot Publish Bounty</strong>
+                <ul class="validation-list" id="validationList"></ul>
+            </div>
+
+            <div class="action-buttons">
+                <button type="button" class="btn btn-secondary" onclick="saveDraft()">
+                    Save Draft
+                </button>
+                <button type="button" class="btn btn-primary" id="publishBtn" onclick="publishBounty()">
+                    Publish Bounty
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Character counters
+        function setupCharCounter(inputId, counterId) {
+            const input = document.getElementById(inputId);
+            const counter = document.getElementById(counterId);
+            
+            input.addEventListener('input', () => {
+                counter.textContent = input.value.length;
+            });
+        }
+        
+        setupCharCounter('title', 'titleCount');
+        setupCharCounter('description', 'descCount');
+        setupCharCounter('scope', 'scopeCount');
+        
+        // Contributor limit toggle
+        function toggleContributorLimit() {
+            const unlimited = document.querySelector('input[name="contributorLimit"]:checked').value === 'unlimited';
+            const capInput = document.getElementById('contributorCapInput');
+            const unlimitedOption = document.getElementById('unlimitedOption');
+            const limitedOption = document.getElementById('limitedOption');
+            
+            if (unlimited) {
+                capInput.style.display = 'none';
+                unlimitedOption.classList.add('selected');
+                limitedOption.classList.remove('selected');
+            } else {
+                capInput.style.display = 'block';
+                unlimitedOption.classList.remove('selected');
+                limitedOption.classList.add('selected');
+            }
+        }
+        
+        // Submission limit toggle
+        function toggleSubmissionLimit() {
+            const unlimited = document.querySelector('input[name="submissionLimit"]:checked').value === 'unlimited';
+            const limitInput = document.getElementById('submissionLimitInput');
+            const unlimitedOption = document.getElementById('unlimitedSubmissionsOption');
+            const limitedOption = document.getElementById('limitedSubmissionsOption');
+            
+            if (unlimited) {
+                limitInput.style.display = 'none';
+                unlimitedOption.classList.add('selected');
+                limitedOption.classList.remove('selected');
+            } else {
+                limitInput.style.display = 'block';
+                unlimitedOption.classList.remove('selected');
+                limitedOption.classList.add('selected');
+            }
+        }
+        
+        // Budget calculator
+        function updateBudgetCalculator() {
+            const budget = parseInt(document.getElementById('totalBudget').value) || 0;
+            const reward = parseInt(document.getElementById('rewardAmount').value) || 1;
+            const maxPasses = Math.floor(budget / reward);
+            
+            document.getElementById('calcBudget').textContent = budget.toLocaleString() + ' points';
+            document.getElementById('calcReward').textContent = reward.toLocaleString() + ' points';
+            document.getElementById('calcMaxPasses').textContent = maxPasses.toLocaleString() + ' passing submissions';
+        }
+        
+        document.getElementById('totalBudget').addEventListener('input', updateBudgetCalculator);
+        document.getElementById('rewardAmount').addEventListener('input', updateBudgetCalculator);
+        
+        // Criteria management
+        let customCriterionCount = 0;
+        
+        function toggleCriteriaConfig(criterionId) {
+            const checkbox = document.getElementById('check' + criterionId.charAt(0).toUpperCase() + criterionId.slice(1));
+            const config = document.getElementById('config' + criterionId.charAt(0).toUpperCase() + criterionId.slice(1));
+            
+            if (checkbox.checked) {
+                config.classList.add('visible');
+            } else {
+                config.classList.remove('visible');
+            }
+            
+            updateCriteriaSummary();
+        }
+        
+        function addCustomCriterion() {
+            customCriterionCount++;
+            const container = document.getElementById('customCriteriaContainer');
+            
+            const item = document.createElement('div');
+            item.className = 'custom-criterion-item';
+            item.id = 'customCriterion-' + customCriterionCount;
+            item.innerHTML = `
+                <input type="text" placeholder="e.g., Includes episode number" 
+                       class="custom-criterion-input">
+                <button type="button" class="remove-criterion-btn" 
+                        onclick="removeCustomCriterion(${customCriterionCount})">
+                    Remove
+                </button>
+            `;
+            
+            container.appendChild(item);
+            updateCriteriaSummary();
+        }
+        
+        function removeCustomCriterion(id) {
+            const item = document.getElementById('customCriterion-' + id);
+            if (item) {
+                item.remove();
+                updateCriteriaSummary();
+            }
+        }
+        
+        function updateCriteriaSummary() {
+            const checkboxes = document.querySelectorAll('.criteria-checkbox:checked');
+            const customInputs = document.querySelectorAll('.custom-criterion-input');
+            let count = checkboxes.length;
+            
+            // Count filled custom criteria
+            if (document.getElementById('checkCustom').checked) {
+                count--; // Remove the "custom" checkbox itself
+                customInputs.forEach(input => {
+                    if (input.value.trim()) count++;
+                });
+            }
+            
+            const summary = document.getElementById('criteriaSummary');
+            const hasThreshold = document.getElementById('thresholdDescription').value.trim().length > 0;
+            
+            if (count > 0 || hasThreshold) {
+                summary.innerHTML = `<strong>${count} checklist criteria selected</strong>`;
+            } else {
+                summary.innerHTML = `<strong>0 criteria selected</strong> - Threshold description or at least one criterion required`;
+            }
+        }
+        
+        document.getElementById('thresholdDescription').addEventListener('input', updateCriteriaSummary);
+        
+        // Add event listeners to all criteria checkboxes
+        document.querySelectorAll('.criteria-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', updateCriteriaSummary);
+        });
+        
+        // Validation
+        function validateForm() {
+            const errors = [];
+            
+            // Check required fields
+            if (!document.getElementById('title').value.trim()) {
+                errors.push('Title is required');
+            }
+            if (!document.getElementById('description').value.trim()) {
+                errors.push('Description is required');
+            }
+            if (!document.getElementById('scope').value.trim()) {
+                errors.push('Scope is required');
+            }
+            
+            // Check dates
+            const startDate = new Date(document.getElementById('startDate').value);
+            const activeUntil = new Date(document.getElementById('activeUntil').value);
+            const deadline = new Date(document.getElementById('deadline').value);
+            
+            if (!document.getElementById('startDate').value) {
+                errors.push('Bounty start date is required');
+            }
+            if (!document.getElementById('activeUntil').value) {
+                errors.push('Active until date is required');
+            }
+            if (!document.getElementById('deadline').value) {
+                errors.push('Deadline is required');
+            }
+            
+            if (startDate && activeUntil && startDate > activeUntil) {
+                errors.push('Active Until date must be after Bounty Start Date');
+            }
+            if (activeUntil && deadline && activeUntil > deadline) {
+                errors.push('Deadline must be after Active Until date');
+            }
+            
+            // Check character count logic
+            if (document.getElementById('checkMinChars').checked && 
+                document.getElementById('checkMaxChars').checked) {
+                const minChars = parseInt(document.getElementById('minCharsValue').value);
+                const maxChars = parseInt(document.getElementById('maxCharsValue').value);
+                
+                if (minChars >= maxChars) {
+                    errors.push('Minimum character count must be less than maximum');
+                }
+            }
+            
+            // Check evaluation criteria
+            const hasThreshold = document.getElementById('thresholdDescription').value.trim().length > 0;
+            const hasChecklist = document.querySelectorAll('.criteria-checkbox:checked').length > 0;
+            
+            if (!hasThreshold && !hasChecklist) {
+                errors.push('Must define threshold description or enable at least one checklist criterion');
+            }
+            
+            // Check budget
+            const budget = parseInt(document.getElementById('totalBudget').value);
+            const reward = parseInt(document.getElementById('rewardAmount').value);
+            
+            if (budget <= 0) {
+                errors.push('Total budget must be greater than 0');
+            }
+            if (reward <= 0) {
+                errors.push('Reward amount must be greater than 0');
+            }
+            if (reward > budget) {
+                errors.push('Reward per submission cannot exceed total budget');
+            }
+            
+            return errors;
+        }
+        
+        function saveDraft() {
+            alert('Draft saved successfully!\n\n(In production, this would save to database)');
+        }
+        
+        function publishBounty() {
+            const errors = validateForm();
+            
+            if (errors.length > 0) {
+                const validationMsg = document.getElementById('validationMessage');
+                const validationList = document.getElementById('validationList');
+                
+                validationList.innerHTML = errors.map(e => `<li>${e}</li>`).join('');
+                validationMsg.classList.add('visible');
+                
+                validationMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else {
+                const budget = parseInt(document.getElementById('totalBudget').value);
+                if (confirm(`Publish this Low Bounty with a budget of ${budget.toLocaleString()} points?\n\nIt will become visible to all curators.`)) {
+                    alert('Low Bounty published successfully!\n\n(In production, this would create the bounty)');
+                }
+            }
+        }
+        
+        // Initialize
+        updateBudgetCalculator();
+        updateCriteriaSummary();
+    </script>
+    </div>
+</body>
+</html>

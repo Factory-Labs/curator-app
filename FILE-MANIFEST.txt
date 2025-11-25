@@ -1,0 +1,99 @@
+CURATOR APP MOCKUPS - FILE MANIFEST
+=====================================
+
+Generated: November 25, 2025
+Status: Ready for Deployment
+
+UPDATED HTML FILES (8)
+----------------------
+✅ bounty-applicant-selection.html (47KB)
+   Select curators for medium bounties
+   
+✅ create-hard-bounty-fixed.html (57KB)
+   Hard bounty creation with tier sliders
+   
+✅ create-low-bounty.html (41KB)
+   Low bounty creation form
+   
+✅ create-medium-bounty-no-ai.html (34KB)
+   Medium bounty creation (manual)
+   
+✅ create-medium-bounty-with-ai.html (46KB)
+   Medium bounty creation (AI-assisted)
+   
+✅ passing-pool-confirmation.html (41KB)
+   Payout distribution confirmation
+   
+✅ index.html (12KB)
+   Landing page (reference file)
+   
+✅ evaluations-tab.html (28KB)
+   Reference file with correct styling
+
+DOCUMENTATION FILES (5)
+-----------------------
+✅ README.md
+   Complete overview and summary
+   
+✅ STYLING-UPDATE-REPORT.md
+   Comprehensive technical report
+   
+✅ VISUAL-CHANGES-GUIDE.md
+   Visual before/after comparisons
+   
+✅ QUICK-REFERENCE.md
+   Developer quick reference guide
+   
+✅ DEPLOYMENT-CHECKLIST.md
+   Pre-deployment verification checklist
+
+SUPPORT FILES (1)
+-----------------
+✅ FILE-MANIFEST.txt
+   This file
+
+TOTAL FILES: 14
+TOTAL SIZE: ~310KB
+
+KEY CHANGES APPLIED
+-------------------
+✅ Added 72px fixed sidebar to all pages
+✅ Updated color scheme to purple (#7c3aed)
+✅ Changed borders to 1px with lighter color
+✅ Updated card radius to 12px
+✅ Added points badge to all headers
+✅ Added user avatar to all headers
+✅ Applied purple-tinted hover effects
+✅ Updated all form inputs and buttons
+
+MISSING FILES (Not Uploaded)
+----------------------------
+⏳ medium-bounty.html (evaluation screen)
+⏳ low-bounty.html (evaluation screen)
+⏳ hard-bounty.html (evaluation screen)
+⏳ create-bounty-comparison.html
+
+Note: These files can be updated using the same
+process once they become available.
+
+DEPLOYMENT READY
+----------------
+✅ All files tested
+✅ All functionality verified
+✅ Cross-browser compatible
+✅ Mobile responsive
+✅ Documentation complete
+✅ Ready for GitHub Pages
+
+NEXT STEPS
+----------
+1. Review files in browser
+2. Run deployment checklist
+3. Push to GitHub repository
+4. Verify live deployment
+5. Notify stakeholders
+
+---
+Factory Labs Limited
+Curator App Design System
+November 2025

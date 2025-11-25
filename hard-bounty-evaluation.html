@@ -1,0 +1,1818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hard Bounty Evaluation - AI Assisted</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #fafafa;
+            color: #1a1a1a;
+        }
+        
+        .header {
+            background: white;
+            border-bottom: 1px solid #e5e5e5;
+            padding: 20px 30px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.1);
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: #1a1a1a;
+        }
+        
+        .header-meta {
+            display: flex;
+            gap: 30px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .container {
+            display: flex;
+            height: calc(100vh - 120px);
+        }
+        
+        .submission-panel {
+            flex: 1;
+            background: white;
+            padding: 30px;
+            overflow-y: auto;
+            border-right: 1px solid #e5e5e5;
+        }
+        
+        .ai-assistant-panel {
+            width: 420px;
+            background: #fafafa;
+            padding: 25px;
+            overflow-y: auto;
+            border-left: 1px solid #e0e0e0;
+        }
+        
+        .ai-assistant-panel.hidden {
+            display: none;
+        }
+        
+        .ai-panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        
+        .ai-panel-header h2 {
+            font-size: 16px;
+            color: #666;
+            font-weight: 600;
+        }
+        
+        .ai-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        
+        .toggle-ai, .data-viewer-toggle {
+            background: #666;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        
+        .toggle-ai:hover, .data-viewer-toggle:hover {
+            background: #555;
+        }
+        
+        .data-viewer-toggle {
+            background: #667eea;
+        }
+        
+        .data-viewer-toggle:hover {
+            background: #5568d3;
+        }
+        
+        .submission-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 20px;
+        }
+        
+        .submission-meta h3 {
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+        
+        .submission-meta p {
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .submission-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 6px;
+        }
+        
+        .stat-value {
+            font-size: 22px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 20px;
+            margin-top: 30px;
+        }
+        
+        .tier-assessment-section {
+            margin-bottom: 30px;
+        }
+        
+        .tier-card {
+            background: white;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .tier-card.mission-critical {
+            border-left: 4px solid #ef4444;
+        }
+        
+        .tier-card.core {
+            border-left: 4px solid #f59e0b;
+        }
+        
+        .tier-card.desirable {
+            border-left: 4px solid #3b82f6;
+        }
+        
+        .tier-card.optional {
+            border-left: 4px solid #9ca3af;
+        }
+        
+        .tier-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .tier-name {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .tier-label {
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .tier-label.mission-critical {
+            color: #ef4444;
+        }
+        
+        .tier-label.core {
+            color: #f59e0b;
+        }
+        
+        .tier-label.desirable {
+            color: #3b82f6;
+        }
+        
+        .tier-label.optional {
+            color: #9ca3af;
+        }
+        
+        .tier-weight {
+            font-size: 12px;
+            color: #666;
+            background: #f3f4f6;
+            padding: 4px 10px;
+            border-radius: 12px;
+        }
+        
+        .tier-threshold {
+            font-size: 12px;
+            font-weight: 600;
+            color: #ef4444;
+        }
+        
+        .completion-slider-container {
+            margin-bottom: 15px;
+        }
+        
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .slider-label {
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .slider-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+        
+        .completion-slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: #e0e0e0;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .completion-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+        }
+        
+        .completion-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .progress-bar {
+            height: 12px;
+            background: #e0e0e0;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 8px;
+            font-size: 10px;
+            font-weight: 700;
+            color: white;
+        }
+        
+        .progress-fill.below-threshold {
+            background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%);
+        }
+        
+        .ai-evidence-box {
+            background: #f8f9ff;
+            border: 1px solid #e0e7ff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        
+        .evidence-header {
+            font-size: 12px;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .ai-icon {
+            width: 16px;
+            height: 16px;
+        }
+        
+        .evidence-list {
+            list-style: none;
+        }
+        
+        .evidence-item {
+            font-size: 13px;
+            color: #555;
+            line-height: 1.6;
+            padding: 6px 0;
+            border-bottom: 1px solid #e0e7ff;
+        }
+        
+        .evidence-item:last-child {
+            border-bottom: none;
+        }
+        
+        .evidence-icon {
+            display: inline-block;
+            margin-right: 8px;
+            font-weight: 600;
+        }
+        
+        .evidence-item.positive .evidence-icon {
+            color: #10b981;
+        }
+        
+        .evidence-item.negative .evidence-icon {
+            color: #ef4444;
+        }
+        
+        .evidence-item.neutral .evidence-icon {
+            color: #f59e0b;
+        }
+        
+        .criteria-evaluation {
+            margin-top: 30px;
+        }
+        
+        .criterion {
+            background: white;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .criterion-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .criterion-name {
+            font-weight: 600;
+            font-size: 15px;
+            color: #1a1a1a;
+        }
+        
+        .criterion-description {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        
+        .score-selector {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .score-option {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #e5e5e5;
+            border-radius: 6px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+        }
+        
+        .score-option:hover {
+            border-color: #7c3aed;
+            background: #f8f9ff;
+        }
+        
+        .score-option.selected {
+            border-color: #7c3aed;
+            background: #667eea;
+            color: white;
+        }
+        
+        .score-option.fail {
+            border-color: #ef4444;
+        }
+        
+        .score-option.fail.selected {
+            background: #ef4444;
+            border-color: #ef4444;
+        }
+        
+        .score-number {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .score-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .score-multiplier {
+            font-size: 12px;
+            margin-top: 4px;
+            opacity: 0.8;
+        }
+        
+        .calculation-panel {
+            background: white;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+        
+        .calculation-panel h3 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #1a1a1a;
+        }
+        
+        .calculation-section {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .calculation-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .calculation-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 12px;
+        }
+        
+        .calculation-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 14px;
+        }
+        
+        .calculation-row.emphasis {
+            font-weight: 700;
+            font-size: 16px;
+            padding-top: 12px;
+        }
+        
+        .final-payout-display {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .final-payout-display.failed {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+        
+        .payout-label {
+            font-size: 13px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+        
+        .payout-amount {
+            font-size: 36px;
+            font-weight: 700;
+        }
+        
+        .payout-breakdown {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-top: 12px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            padding: 20px 30px;
+            background: white;
+            border-top: 1px solid #e5e5e5;
+            position: sticky;
+            bottom: 0;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-accept {
+            background: #7c3aed;
+            color: white;
+        }
+        
+        .btn-accept:hover {
+            background: #6d28d9;
+        }
+        
+        .btn-reject {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .btn-reject:hover {
+            background: #dc2626;
+        }
+        
+        .btn-draft {
+            background: #f3f4f6;
+            color: #666;
+        }
+        
+        .btn-draft:hover {
+            background: #e5e7eb;
+        }
+        
+        .ai-alert {
+            background: #fef3c7;
+            border: 2px solid #fbbf24;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .ai-alert.success {
+            background: #d1fae5;
+            border-color: #10b981;
+        }
+        
+        .ai-alert.danger {
+            background: #fee2e2;
+            border-color: #ef4444;
+        }
+        
+        .ai-alert-title {
+            font-weight: 600;
+            font-size: 13px;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .ai-alert-content {
+            font-size: 12px;
+            line-height: 1.5;
+            color: #555;
+        }
+        
+        .verification-item {
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            font-size: 12px;
+        }
+        
+        .verification-item.pass {
+            border-left: 3px solid #10b981;
+        }
+        
+        .verification-item.fail {
+            border-left: 3px solid #ef4444;
+        }
+        
+        .verification-item.warning {
+            border-left: 3px solid #f59e0b;
+        }
+        
+        .verification-label {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .verification-detail {
+            color: #666;
+            font-size: 11px;
+        }
+        
+        .section-divider {
+            height: 2px;
+            background: #e0e0e0;
+            margin: 20px 0;
+        }
+        
+        .comparison-box {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .comparison-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .comparison-text {
+            font-size: 12px;
+            color: #555;
+            line-height: 1.5;
+        }
+        
+        .warning-banner {
+            background: #fee2e2;
+            border: 2px solid #ef4444;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .warning-banner.visible {
+            display: block;
+        }
+        
+        .warning-banner-title {
+            font-weight: 700;
+            color: #991b1b;
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+        
+        .warning-banner-text {
+            font-size: 13px;
+            color: #7f1d1d;
+        }
+    
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 72px;
+            height: 100vh;
+            background: white;
+            border-right: 1px solid #e5e5e5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+            gap: 20px;
+            z-index: 100;
+        }
+        
+        .sidebar-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+            color: #666;
+            font-size: 20px;
+        }
+        
+        .sidebar-icon:hover {
+            background: #f5f5f5;
+        }
+        
+        .sidebar-icon.active {
+            background: #ede9fe;
+            color: #7c3aed;
+        }
+        
+        .main-wrapper {
+            margin-left: 72px;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-left {
+            flex: 1;
+        }
+        
+        .header-subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-top: 4px;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .points-badge {
+            background: #ede9fe;
+            color: #7c3aed;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .points-icon {
+            width: 16px;
+            height: 16px;
+            background: #7c3aed;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 10px;
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-icon">☰</div>
+        <div class="sidebar-icon active">◎</div>
+        <div class="sidebar-icon">◇</div>
+    </div>
+    
+    <div class="main-wrapper">
+
+    <div class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <h1>Evaluate Hard Bounty Submission</h1>
+            </div>
+            <div class="header-right">
+                <div class="points-badge">
+                    <div class="points-icon">△</div>
+                    3000
+                </div>
+                <div class="user-avatar"></div>
+            </div>
+        </div>
+</div>
+            </div>
+            <div style="display: flex; gap: 12px;">
+                <button class="data-viewer-toggle" onclick="alert('Data viewer would open submission dataset')">
+                    <svg width="18" height="18" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
+                    </svg>
+                    View Dataset
+                </button>
+                <button class="toggle-ai" onclick="toggleAIPanel()">
+                    <span id="toggleText">Hide AI Assistant</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="submission-panel">
+            <div class="submission-header">
+                <div class="avatar">JK</div>
+                <div class="submission-meta">
+                    <h3>Jordan Kim (@jordan_data_curator)</h3>
+                    <p>Submitted: Nov 20, 2025 • Project Duration: 3 weeks • Previous projects: 8 completed</p>
+                </div>
+            </div>
+
+            <div class="submission-stats">
+                <div class="stat">
+                    <div class="stat-label">Episodes</div>
+                    <div class="stat-value">347</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Podcasts</div>
+                    <div class="stat-value">28</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Time Invested</div>
+                    <div class="stat-value">~85h</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Sources</div>
+                    <div class="stat-value">42</div>
+                </div>
+            </div>
+
+            <div class="warning-banner" id="thresholdWarning">
+                <div class="warning-banner-title">⚠️ Mission Critical Threshold Not Met</div>
+                <div class="warning-banner-text">
+                    Mission Critical tier must be ≥88% complete to pass. Current: <span id="missionCriticalPercent">0</span>%
+                </div>
+            </div>
+
+            <h2 class="section-title">Ontology Tier Completion</h2>
+            
+            <div class="tier-assessment-section">
+                <div class="tier-card mission-critical">
+                    <div class="tier-header">
+                        <div class="tier-name">
+                            <span class="tier-label mission-critical">Mission Critical</span>
+                            <span class="tier-weight">Weight: 1.0 × 50%</span>
+                        </div>
+                        <span class="tier-threshold">≥88% Required</span>
+                    </div>
+                    
+                    <div class="completion-slider-container">
+                        <div class="slider-header">
+                            <span class="slider-label">Completion Percentage</span>
+                            <span class="slider-value" id="missionCriticalValue">0%</span>
+                        </div>
+                        <input type="range" min="0" max="100" value="0" class="completion-slider" 
+                               id="missionCriticalSlider" oninput="updateTier('missionCritical', this.value)">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="missionCriticalBar" style="width: 0%">0%</div>
+                        </div>
+                    </div>
+                    
+                    <div class="ai-evidence-box">
+                        <div class="evidence-header">
+                            <svg class="ai-icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M13 7H7v6h6V7z"/>
+                                <path fill-rule="evenodd" d="M7 2a1 1 0 012 0v1h2V2a1 1 0 112 0v1h2a2 2 0 012 2v2h1a1 1 0 110 2h-1v2h1a1 1 0 110 2h-1v2a2 2 0 01-2 2h-2v1a1 1 0 11-2 0v-1H9v1a1 1 0 11-2 0v-1H5a2 2 0 01-2-2v-2H2a1 1 0 110-2h1V9H2a1 1 0 010-2h1V5a2 2 0 012-2h2V2zM5 5h10v10H5V5z" clip-rule="evenodd"/>
+                            </svg>
+                            AI Field Analysis
+                        </div>
+                        <ul class="evidence-list">
+                            <li class="evidence-item positive">
+                                <span class="evidence-icon">✓</span>
+                                Podcast name: 100% complete (347/347 episodes)
+                            </li>
+                            <li class="evidence-item positive">
+                                <span class="evidence-icon">✓</span>
+                                Episode title: 100% complete (347/347 episodes)
+                            </li>
+                            <li class="evidence-item positive">
+                                <span class="evidence-icon">✓</span>
+                                Air date: 98% complete (340/347 episodes)
+                            </li>
+                            <li class="evidence-item positive">
+                                <span class="evidence-icon">✓</span>
+                                Participants: 96% complete (333/347 episodes)
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="tier-card core">
+                    <div class="tier-header">
+                        <div class="tier-name">
+                            <span class="tier-label core">Core</span>
+                            <span class="tier-weight">Weight: 0.7 × 30%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="completion-slider-container">
+                        <div class="slider-header">
+                            <span class="slider-label">Completion Percentage</span>
+                            <span class="slider-value" id="coreValue">0%</span>
+                        </div>
+                        <input type="range" min="0" max="100" value="0" class="completion-slider" 
+                               id="coreSlider" oninput="updateTier('core', this.value)">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="coreBar" style="width: 0%">0%</div>
+                        </div>
+                    </div>
+                    
+                    <div class="ai-evidence-box">
+                        <div class="evidence-header">
+                            <svg class="ai-icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M13 7H7v6h6V7z"/>
+                                <path fill-rule="evenodd" d="M7 2a1 1 0 012 0v1h2V2a1 1 0 112 0v1h2a2 2 0 012 2v2h1a1 1 0 110 2h-1v2h1a1 1 0 110 2h-1v2a2 2 0 01-2 2h-2v1a1 1 0 11-2 0v-1H9v1a1 1 0 11-2 0v-1H5a2 2 0 01-2-2v-2H2a1 1 0 110-2h1V9H2a1 1 0 010-2h1V5a2 2 0 012-2h2V2zM5 5h10v10H5V5z" clip-rule="evenodd"/>
+                            </svg>
+                            AI Field Analysis
+                        </div>
+                        <ul class="evidence-list">
+                            <li class="evidence-item positive">
+                                <span class="evidence-icon">✓</span>
+                                Episode description: 94% complete (326/347)
+                            </li>
+                            <li class="evidence-item positive">
+                                <span class="evidence-icon">✓</span>
+                                Duration: 91% complete (316/347)
+                            </li>
+                            <li class="evidence-item neutral">
+                                <span class="evidence-icon">⚠</span>
+                                Platform links: 78% complete (271/347)
+                            </li>
+                            <li class="evidence-item neutral">
+                                <span class="evidence-icon">⚠</span>
+                                Topics/tags: 82% complete (285/347)
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="tier-card desirable">
+                    <div class="tier-header">
+                        <div class="tier-name">
+                            <span class="tier-label desirable">Desirable</span>
+                            <span class="tier-weight">Weight: 0.4 × 15%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="completion-slider-container">
+                        <div class="slider-header">
+                            <span class="slider-label">Completion Percentage</span>
+                            <span class="slider-value" id="desirableValue">0%</span>
+                        </div>
+                        <input type="range" min="0" max="100" value="0" class="completion-slider" 
+                               id="desirableSlider" oninput="updateTier('desirable', this.value)">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="desirableBar" style="width: 0%">0%</div>
+                        </div>
+                    </div>
+                    
+                    <div class="ai-evidence-box">
+                        <div class="evidence-header">
+                            <svg class="ai-icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M13 7H7v6h6V7z"/>
+                                <path fill-rule="evenodd" d="M7 2a1 1 0 012 0v1h2V2a1 1 0 112 0v1h2a2 2 0 012 2v2h1a1 1 0 110 2h-1v2h1a1 1 0 110 2h-1v2a2 2 0 01-2 2h-2v1a1 1 0 11-2 0v-1H9v1a1 1 0 11-2 0v-1H5a2 2 0 01-2-2v-2H2a1 1 0 110-2h1V9H2a1 1 0 010-2h1V5a2 2 0 012-2h2V2zM5 5h10v10H5V5z" clip-rule="evenodd"/>
+                            </svg>
+                            AI Field Analysis
+                        </div>
+                        <ul class="evidence-list">
+                            <li class="evidence-item positive">
+                                <span class="evidence-icon">✓</span>
+                                Cover art: 72% complete (250/347)
+                            </li>
+                            <li class="evidence-item neutral">
+                                <span class="evidence-icon">⚠</span>
+                                Guest bios: 58% complete (201/347)
+                            </li>
+                            <li class="evidence-item neutral">
+                                <span class="evidence-icon">⚠</span>
+                                Episode notes: 45% complete (156/347)
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="tier-card optional">
+                    <div class="tier-header">
+                        <div class="tier-name">
+                            <span class="tier-label optional">Optional</span>
+                            <span class="tier-weight">Weight: 0.1 × 5%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="completion-slider-container">
+                        <div class="slider-header">
+                            <span class="slider-label">Completion Percentage</span>
+                            <span class="slider-value" id="optionalValue">0%</span>
+                        </div>
+                        <input type="range" min="0" max="100" value="0" class="completion-slider" 
+                               id="optionalSlider" oninput="updateTier('optional', this.value)">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="optionalBar" style="width: 0%">0%</div>
+                        </div>
+                    </div>
+                    
+                    <div class="ai-evidence-box">
+                        <div class="evidence-header">
+                            <svg class="ai-icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M13 7H7v6h6V7z"/>
+                                <path fill-rule="evenodd" d="M7 2a1 1 0 012 0v1h2V2a1 1 0 112 0v1h2a2 2 0 012 2v2h1a1 1 0 110 2h-1v2h1a1 1 0 110 2h-1v2a2 2 0 01-2 2h-2v1a1 1 0 11-2 0v-1H9v1a1 1 0 11-2 0v-1H5a2 2 0 01-2-2v-2H2a1 1 0 110-2h1V9H2a1 1 0 010-2h1V5a2 2 0 012-2h2V2zM5 5h10v10H5V5z" clip-rule="evenodd"/>
+                            </svg>
+                            AI Field Analysis
+                        </div>
+                        <ul class="evidence-list">
+                            <li class="evidence-item neutral">
+                                <span class="evidence-icon">⚠</span>
+                                Sponsors: 34% complete (118/347)
+                            </li>
+                            <li class="evidence-item neutral">
+                                <span class="evidence-icon">⚠</span>
+                                Producers: 28% complete (97/347)
+                            </li>
+                            <li class="evidence-item neutral">
+                                <span class="evidence-icon">⚠</span>
+                                Related episodes: 19% complete (66/347)
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <h2 class="section-title">Quality Criteria Evaluation</h2>
+            
+            <div class="criteria-evaluation">
+                <div class="criterion">
+                    <div class="criterion-header">
+                        <span class="criterion-name">1. Accuracy</span>
+                    </div>
+                    <div class="criterion-description">
+                        Data correctness, verified against sources
+                    </div>
+                    <div class="score-selector">
+                        <div class="score-option fail" onclick="selectScore('accuracy', 0)">
+                            <div class="score-number">0</div>
+                            <div class="score-label">FAIL</div>
+                            <div class="score-multiplier">Major errors</div>
+                        </div>
+                        <div class="score-option" onclick="selectScore('accuracy', 1)">
+                            <div class="score-number">1</div>
+                            <div class="score-label">Baseline</div>
+                            <div class="score-multiplier">1.0x</div>
+                        </div>
+                        <div class="score-option" onclick="selectScore('accuracy', 2)">
+                            <div class="score-number">2</div>
+                            <div class="score-label">Good</div>
+                            <div class="score-multiplier">1.5x</div>
+                        </div>
+                        <div class="score-option" onclick="selectScore('accuracy', 3)">
+                            <div class="score-number">3</div>
+                            <div class="score-label">Excellent</div>
+                            <div class="score-multiplier">2.0x</div>
+                        </div>
+                    </div>
+                    
+                    <div class="ai-evidence-box">
+                        <div class="evidence-header">
+                            <svg class="ai-icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M13 7H7v6h6V7z"/>
+                                <path fill-rule="evenodd" d="M7 2a1 1 0 012 0v1h2V2a1 1 0 112 0v1h2a2 2 0 012 2v2h1a1 1 0 110 2h-1v2h1a1 1 0 110 2h-1v2a2 2 0 01-2 2h-2v1a1 1 0 11-2 0v-1H9v1a1 1 0 11-2 0v-1H5a2 2 0 01-2-2v-2H2a1 1 0 110-2h1V9H2a1 1 0 010-2h1V5a2 2 0 012-2h2V2zM5 5h10v10H5V5z" clip-rule="evenodd"/>
+                            </svg>
+                            AI Evidence Analysis
+                        </div>
+                        <ul class="evidence-list">
+                            <li class="evidence-item positive">
+                                <span class="evidence-icon">✓</span>
+                                Cross-verified 50 random samples against original sources
+                            </li>
+                            <li class="evidence-item positive">
+                                <span class="evidence-icon">✓</span>
+                                Episode titles, dates, and participants match exactly in 48/50 samples
+                            </li>
+                            <li class="evidence-item neutral">
+                                <span class="evidence-icon">⚠</span>
+                                2 minor date discrepancies found (off by 1 day, likely timezone differences)
+                            </li>
+                            <li class="evidence-item positive">
+                                <span class="evidence-icon">✓</span>
+                                Episode descriptions accurately reflect content (spot-checked 25 episodes)
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="criterion">
+                    <div class="criterion-header">
+                        <span class="criterion-name">2. Completeness</span>
+                    </div>
+                    <div class="criterion-description">
+                        Overall field coverage across all ontology tiers (assessed above)
+                    </div>
+                    <div class="score-selector">
+                        <div class="score-option fail" onclick="selectScore('completeness', 0)">
+                            <div class="score-number">0</div>
+                            <div class="score-label">FAIL</div>
+                            <div class="score-multiplier">Mission Critical < 88%</div>
+                        </div>
+                        <div class="score-option" onclick="selectScore('completeness', 1)">
+                            <div class="score-number">1</div>
+                            <div class="score-label">Baseline</div>
+                            <div class="score-multiplier">1.0x</div>
+                        </div>
+                        <div class="score-option" onclick="selectScore('completeness', 2)">
+                            <div class="score-number">2</div>
+                            <div class="score-label">Good</div>
+                            <div class="score-multiplier">1.5x</div>
+                        </div>
+                        <div class="score-option" onclick="selectScore('completeness', 3)">
+                            <div class="score-number">3</div>
+                            <div class="score-label">Excellent</div>
+                            <div class="score-multiplier">2.0x</div>
+                        </div>
+                    </div>
+                    
+                    <div class="ai-evidence-box">
+                        <div class="evidence-header">
+                            <svg class="ai-icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M13 7H7v6h6V7z"/>
+                                <path fill-rule="evenodd" d="M7 2a1 1 0 012 0v1h2V2a1 1 0 112 0v1h2a2 2 0 012 2v2h1a1 1 0 110 2h-1v2h1a1 1 0 110 2h-1v2a2 2 0 01-2 2h-2v1a1 1 0 11-2 0v-1H9v1a1 1 0 11-2 0v-1H5a2 2 0 01-2-2v-2H2a1 1 0 110-2h1V9H2a1 1 0 010-2h1V5a2 2 0 012-2h2V2zM5 5h10v10H5V5z" clip-rule="evenodd"/>
+                            </svg>
+                            AI Evidence Analysis
+                        </div>
+                        <ul class="evidence-list">
+                            <li class="evidence-item positive">
+                                <span class="evidence-icon">✓</span>
+                                Refer to tier completion percentages above for detailed analysis
+                            </li>
+                            <li class="evidence-item positive">
+                                <span class="evidence-icon">✓</span>
+                                Strong focus on mission-critical and core fields
+                            </li>
+                            <li class="evidence-item neutral">
+                                <span class="evidence-icon">⚠</span>
+                                Desirable and optional tiers have room for improvement
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="criterion">
+                    <div class="criterion-header">
+                        <span class="criterion-name">3. Usefulness</span>
+                    </div>
+                    <div class="criterion-description">
+                        Value-add, prevents duplicate/redundant work
+                    </div>
+                    <div class="score-selector">
+                        <div class="score-option fail" onclick="selectScore('usefulness', 0)">
+                            <div class="score-number">0</div>
+                            <div class="score-label">FAIL</div>
+                            <div class="score-multiplier">Duplicate</div>
+                        </div>
+                        <div class="score-option" onclick="selectScore('usefulness', 1)">
+                            <div class="score-number">1</div>
+                            <div class="score-label">Baseline</div>
+                            <div class="score-multiplier">1.0x</div>
+                        </div>
+                        <div class="score-option" onclick="selectScore('usefulness', 2)">
+                            <div class="score-number">2</div>
+                            <div class="score-label">Good</div>
+                            <div class="score-multiplier">1.5x</div>
+                        </div>
+                        <div class="score-option" onclick="selectScore('usefulness', 3)">
+                            <div class="score-number">3</div>
+                            <div class="score-label">Excellent</div>
+                            <div class="score-multiplier">2.0x</div>
+                        </div>
+                    </div>
+                    
+                    <div class="ai-evidence-box">
+                        <div class="evidence-header">
+                            <svg class="ai-icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M13 7H7v6h6V7z"/>
+                                <path fill-rule="evenodd" d="M7 2a1 1 0 012 0v1h2V2a1 1 0 112 0v1h2a2 2 0 012 2v2h1a1 1 0 110 2h-1v2h1a1 1 0 110 2h-1v2a2 2 0 01-2 2h-2v1a1 1 0 11-2 0v-1H9v1a1 1 0 11-2 0v-1H5a2 2 0 01-2-2v-2H2a1 1 0 110-2h1V9H2a1 1 0 010-2h1V5a2 2 0 012-2h2V2zM5 5h10v10H5V5z" clip-rule="evenodd"/>
+                            </svg>
+                            AI Evidence Analysis
+                        </div>
+                        <ul class="evidence-list">
+                            <li class="evidence-item positive">
+                                <span class="evidence-icon">✓</span>
+                                339 of 347 episodes (98%) are completely new to knowledge graph
+                            </li>
+                            <li class="evidence-item positive">
+                                <span class="evidence-icon">✓</span>
+                                8 existing episodes enhanced with average of 12 additional fields each
+                            </li>
+                            <li class="evidence-item positive">
+                                <span class="evidence-icon">✓</span>
+                                Covers 28 podcast series, filling significant gaps in dataset
+                            </li>
+                            <li class="evidence-item positive">
+                                <span class="evidence-icon">✓</span>
+                                No redundant overlap with other recent submissions
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="criterion">
+                    <div class="criterion-header">
+                        <span class="criterion-name">4. Skill</span>
+                    </div>
+                    <div class="criterion-description">
+                        Expertise and methodology demonstrated
+                    </div>
+                    <div class="score-selector">
+                        <div class="score-option fail" onclick="selectScore('skill', 0)">
+                            <div class="score-number">0</div>
+                            <div class="score-label">FAIL</div>
+                            <div class="score-multiplier">Poor methodology</div>
+                        </div>
+                        <div class="score-option" onclick="selectScore('skill', 1)">
+                            <div class="score-number">1</div>
+                            <div class="score-label">Baseline</div>
+                            <div class="score-multiplier">1.0x</div>
+                        </div>
+                        <div class="score-option" onclick="selectScore('skill', 2)">
+                            <div class="score-number">2</div>
+                            <div class="score-label">Good</div>
+                            <div class="score-multiplier">1.5x</div>
+                        </div>
+                        <div class="score-option" onclick="selectScore('skill', 3)">
+                            <div class="score-number">3</div>
+                            <div class="score-label">Excellent</div>
+                            <div class="score-multiplier">2.0x</div>
+                        </div>
+                    </div>
+                    
+                    <div class="ai-evidence-box">
+                        <div class="evidence-header">
+                            <svg class="ai-icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M13 7H7v6h6V7z"/>
+                                <path fill-rule="evenodd" d="M7 2a1 1 0 012 0v1h2V2a1 1 0 112 0v1h2a2 2 0 012 2v2h1a1 1 0 110 2h-1v2h1a1 1 0 110 2h-1v2a2 2 0 01-2 2h-2v1a1 1 0 11-2 0v-1H9v1a1 1 0 11-2 0v-1H5a2 2 0 01-2-2v-2H2a1 1 0 110-2h1V9H2a1 1 0 010-2h1V5a2 2 0 012-2h2V2zM5 5h10v10H5V5z" clip-rule="evenodd"/>
+                            </svg>
+                            AI Evidence Analysis
+                        </div>
+                        <ul class="evidence-list">
+                            <li class="evidence-item positive">
+                                <span class="evidence-icon">✓</span>
+                                Highly consistent citation format and data structure across 347 episodes
+                            </li>
+                            <li class="evidence-item positive">
+                                <span class="evidence-icon">✓</span>
+                                Systematic source selection (42 diverse, authoritative sources)
+                            </li>
+                            <li class="evidence-item positive">
+                                <span class="evidence-icon">✓</span>
+                                Episode descriptions demonstrate deep domain knowledge and listening
+                            </li>
+                            <li class="evidence-item positive">
+                                <span class="evidence-icon">✓</span>
+                                Advanced topic tagging methodology (average 5.7 tags per episode)
+                            </li>
+                            <li class="evidence-item positive">
+                                <span class="evidence-icon">✓</span>
+                                Comprehensive guest research where available
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="criterion">
+                    <div class="criterion-header">
+                        <span class="criterion-name">5. Effort</span>
+                    </div>
+                    <div class="criterion-description">
+                        Work intensity and thoroughness
+                    </div>
+                    <div class="score-selector">
+                        <div class="score-option fail" onclick="selectScore('effort', 0)">
+                            <div class="score-number">0</div>
+                            <div class="score-label">FAIL</div>
+                            <div class="score-multiplier">Rushed</div>
+                        </div>
+                        <div class="score-option" onclick="selectScore('effort', 1)">
+                            <div class="score-number">1</div>
+                            <div class="score-label">Baseline</div>
+                            <div class="score-multiplier">1.0x</div>
+                        </div>
+                        <div class="score-option" onclick="selectScore('effort', 2)">
+                            <div class="score-number">2</div>
+                            <div class="score-label">Good</div>
+                            <div class="score-multiplier">1.5x</div>
+                        </div>
+                        <div class="score-option" onclick="selectScore('effort', 3)">
+                            <div class="score-number">3</div>
+                            <div class="score-label">Excellent</div>
+                            <div class="score-multiplier">2.0x</div>
+                        </div>
+                    </div>
+                    
+                    <div class="ai-evidence-box">
+                        <div class="evidence-header">
+                            <svg class="ai-icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M13 7H7v6h6V7z"/>
+                                <path fill-rule="evenodd" d="M7 2a1 1 0 012 0v1h2V2a1 1 0 112 0v1h2a2 2 0 012 2v2h1a1 1 0 110 2h-1v2h1a1 1 0 110 2h-1v2a2 2 0 01-2 2h-2v1a1 1 0 11-2 0v-1H9v1a1 1 0 11-2 0v-1H5a2 2 0 01-2-2v-2H2a1 1 0 110-2h1V9H2a1 1 0 010-2h1V5a2 2 0 012-2h2V2zM5 5h10v10H5V5z" clip-rule="evenodd"/>
+                            </svg>
+                            AI Evidence Analysis
+                        </div>
+                        <ul class="evidence-list">
+                            <li class="evidence-item positive">
+                                <span class="evidence-icon">✓</span>
+                                ~85 hours reported for 347 episodes (~15 min/episode)
+                            </li>
+                            <li class="evidence-item positive">
+                                <span class="evidence-icon">✓</span>
+                                Time estimate appropriate given field complexity and scale
+                            </li>
+                            <li class="evidence-item positive">
+                                <span class="evidence-icon">✓</span>
+                                Evidence of actually listening to episodes for descriptions
+                            </li>
+                            <li class="evidence-item positive">
+                                <span class="evidence-icon">✓</span>
+                                Consistent quality across 3-week period suggests sustained focus
+                            </li>
+                            <li class="evidence-item positive">
+                                <span class="evidence-icon">✓</span>
+                                Thoroughness in source verification and cross-referencing
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="calculation-panel">
+                <h3>Final Payout Calculation</h3>
+                
+                <div class="calculation-section">
+                    <div class="calculation-title">Ontology Tier Weighted Completion</div>
+                    <div class="calculation-row">
+                        <span>Mission Critical: <span id="calc-mc-display">0%</span> × 1.0 × 50%</span>
+                        <span id="calc-mc-result">0.0%</span>
+                    </div>
+                    <div class="calculation-row">
+                        <span>Core: <span id="calc-core-display">0%</span> × 0.7 × 30%</span>
+                        <span id="calc-core-result">0.0%</span>
+                    </div>
+                    <div class="calculation-row">
+                        <span>Desirable: <span id="calc-desirable-display">0%</span> × 0.4 × 15%</span>
+                        <span id="calc-desirable-result">0.0%</span>
+                    </div>
+                    <div class="calculation-row">
+                        <span>Optional: <span id="calc-optional-display">0%</span> × 0.1 × 5%</span>
+                        <span id="calc-optional-result">0.0%</span>
+                    </div>
+                    <div class="calculation-row emphasis">
+                        <span>Weighted Completion</span>
+                        <span id="calc-weighted-total">0.0%</span>
+                    </div>
+                </div>
+                
+                <div class="calculation-section">
+                    <div class="calculation-title">Quality Criteria Average Multiplier</div>
+                    <div class="calculation-row">
+                        <span>Accuracy</span>
+                        <span id="calc-accuracy">Not scored</span>
+                    </div>
+                    <div class="calculation-row">
+                        <span>Completeness</span>
+                        <span id="calc-completeness">Not scored</span>
+                    </div>
+                    <div class="calculation-row">
+                        <span>Usefulness</span>
+                        <span id="calc-usefulness">Not scored</span>
+                    </div>
+                    <div class="calculation-row">
+                        <span>Skill</span>
+                        <span id="calc-skill">Not scored</span>
+                    </div>
+                    <div class="calculation-row">
+                        <span>Effort</span>
+                        <span id="calc-effort">Not scored</span>
+                    </div>
+                    <div class="calculation-row emphasis">
+                        <span>Average Quality Multiplier</span>
+                        <span id="calc-avg-multiplier">0.0x</span>
+                    </div>
+                </div>
+                
+                <div class="calculation-section">
+                    <div class="calculation-title">Final Calculation</div>
+                    <div class="calculation-row">
+                        <span>Total Budget</span>
+                        <span>200,000 points</span>
+                    </div>
+                    <div class="calculation-row">
+                        <span>Weighted Completion</span>
+                        <span id="calc-final-weighted">0.0%</span>
+                    </div>
+                    <div class="calculation-row">
+                        <span>Quality Multiplier</span>
+                        <span id="calc-final-multiplier">0.0x</span>
+                    </div>
+                    <div class="calculation-row emphasis">
+                        <span>Formula</span>
+                        <span id="calc-formula">200,000 × 0% × 0x</span>
+                    </div>
+                </div>
+                
+                <div class="final-payout-display" id="finalPayoutDisplay">
+                    <div class="payout-label">Final Payout</div>
+                    <div class="payout-amount" id="finalPayoutAmount">0 points</div>
+                    <div class="payout-breakdown" id="payoutBreakdown">
+                        Complete all evaluations to calculate final payout
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="ai-assistant-panel" id="aiPanel">
+            <div class="ai-panel-header">
+                <h2>AI ASSISTANT</h2>
+                <span class="ai-badge">CLAUDE SONNET 4.5</span>
+            </div>
+
+            <div class="ai-alert success">
+                <div class="ai-alert-title">
+                    ✓ No Critical Issues Detected
+                </div>
+                <div class="ai-alert-content">
+                    All automated checks passed. No automatic disqualifications found.
+                </div>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <h3 style="font-size: 14px; font-weight: 600; margin-bottom: 12px; color: #1a1a1a;">
+                Automated Verifications
+            </h3>
+
+            <div class="verification-item pass">
+                <div class="verification-label">✓ Dataset Scale</div>
+                <div class="verification-detail">347 episodes across 28 podcast series. Scale meets project requirements.</div>
+            </div>
+
+            <div class="verification-item pass">
+                <div class="verification-label">✓ Source Verification</div>
+                <div class="verification-detail">All 42 cited sources are live and accessible. Diverse, authoritative source selection.</div>
+            </div>
+
+            <div class="verification-item pass">
+                <div class="verification-label">✓ Duplicate Detection</div>
+                <div class="verification-detail">98% new entities (339/347). 8 existing entities enhanced with substantial new data.</div>
+            </div>
+
+            <div class="verification-item warning">
+                <div class="verification-label">⚠ Minor Accuracy Issues</div>
+                <div class="verification-detail">2 date discrepancies in 50-sample verification (likely timezone differences, not errors).</div>
+            </div>
+
+            <div class="verification-item pass">
+                <div class="verification-label">✓ Data Quality</div>
+                <div class="verification-detail">Consistent structure, formatting, and methodology across entire dataset.</div>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <h3 style="font-size: 14px; font-weight: 600; margin-bottom: 12px; color: #1a1a1a;">
+                Tier Completion Summary
+            </h3>
+
+            <div class="comparison-box">
+                <div class="comparison-title">Calculated Tier Percentages</div>
+                <div class="comparison-text">
+                    Based on field-by-field analysis:
+                    <br><br>
+                    <strong>Mission Critical:</strong> ~98%
+                    <br>
+                    <strong>Core:</strong> ~86%
+                    <br>
+                    <strong>Desirable:</strong> ~58%
+                    <br>
+                    <strong>Optional:</strong> ~27%
+                    <br><br>
+                    <em>Note: These are AI estimates. Your assessment of tier completion is the final determination.</em>
+                </div>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <h3 style="font-size: 14px; font-weight: 600; margin-bottom: 12px; color: #1a1a1a;">
+                Historical Context
+            </h3>
+
+            <div class="comparison-box">
+                <div class="comparison-title">Contributor Track Record</div>
+                <div class="comparison-text">
+                    Jordan Kim has completed 8 previous projects:
+                    <br><br>
+                    • Average quality scores: 2.6/3
+                    <br>
+                    • Zero failed projects
+                    <br>
+                    • 100% on-time delivery
+                    <br>
+                    • Specialty: Large-scale podcast datasets
+                </div>
+            </div>
+
+            <div class="comparison-box">
+                <div class="comparison-title">Similar Past Project</div>
+                <div class="comparison-text">
+                    Tech News Podcast Dataset (Aug 2024):
+                    <br>
+                    412 episodes, 31 series
+                    <br><br>
+                    <strong>Your scores:</strong>
+                    <br>
+                    Accuracy: 3, Completeness: 2, Usefulness: 3, Skill: 3, Effort: 2
+                    <br><br>
+                    <strong>Tier completion:</strong>
+                    <br>
+                    MC: 96%, Core: 88%, Desirable: 61%, Optional: 32%
+                    <br><br>
+                    <strong>Final payout:</strong> 187,500 points
+                </div>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <h3 style="font-size: 14px; font-weight: 600; margin-bottom: 12px; color: #1a1a1a;">
+                Workload Analysis
+            </h3>
+
+            <div class="comparison-box">
+                <div class="comparison-title">Effort Validation</div>
+                <div class="comparison-text">
+                    <strong>Estimated effort for this scale:</strong>
+                    <br>
+                    • Research: 10-12 min/episode
+                    <br>
+                    • Data entry: 4-6 min/episode
+                    <br>
+                    • Verification: ~6 hours
+                    <br>
+                    • Total estimate: 78-96 hours
+                    <br><br>
+                    <strong>Reported time:</strong> ~85 hours
+                    <br>
+                    (Within expected range for this complexity and scale)
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="action-buttons">
+        <button class="btn btn-draft">Save Draft</button>
+        <button class="btn btn-reject">Reject & Provide Feedback</button>
+        <button class="btn btn-accept" onclick="showAcceptConfirmation()">Accept & Finalize</button>
+    </div>
+
+    <script>
+        const tierValues = {
+            missionCritical: 0,
+            core: 0,
+            desirable: 0,
+            optional: 0
+        };
+        
+        const scores = {
+            accuracy: null,
+            completeness: null,
+            usefulness: null,
+            skill: null,
+            effort: null
+        };
+        
+        const multipliers = {
+            0: 0,
+            1: 1.0,
+            2: 1.5,
+            3: 2.0
+        };
+        
+        function updateTier(tier, value) {
+            tierValues[tier] = parseInt(value);
+            
+            // Update display
+            const displayId = tier === 'missionCritical' ? 'missionCriticalValue' : 
+                             tier === 'core' ? 'coreValue' :
+                             tier === 'desirable' ? 'desirableValue' : 'optionalValue';
+            document.getElementById(displayId).textContent = value + '%';
+            
+            // Update progress bar
+            const barId = tier === 'missionCritical' ? 'missionCriticalBar' : 
+                         tier === 'core' ? 'coreBar' :
+                         tier === 'desirable' ? 'desirableBar' : 'optionalBar';
+            const bar = document.getElementById(barId);
+            bar.style.width = value + '%';
+            bar.textContent = value + '%';
+            
+            // Check threshold for mission critical
+            if (tier === 'missionCritical') {
+                const warning = document.getElementById('thresholdWarning');
+                const percentSpan = document.getElementById('missionCriticalPercent');
+                percentSpan.textContent = value;
+                
+                if (value < 88) {
+                    warning.classList.add('visible');
+                    bar.classList.add('below-threshold');
+                } else {
+                    warning.classList.remove('visible');
+                    bar.classList.remove('below-threshold');
+                }
+            }
+            
+            updateCalculation();
+        }
+        
+        function selectScore(criterion, score) {
+            scores[criterion] = score;
+            
+            // Update UI
+            const options = document.querySelectorAll(`[onclick*="${criterion}"]`);
+            options.forEach(opt => opt.classList.remove('selected'));
+            event.target.closest('.score-option').classList.add('selected');
+            
+            updateCalculation();
+        }
+        
+        function updateCalculation() {
+            // Calculate weighted completion
+            const mcWeight = (tierValues.missionCritical / 100) * 1.0 * 0.5;
+            const coreWeight = (tierValues.core / 100) * 0.7 * 0.3;
+            const desirableWeight = (tierValues.desirable / 100) * 0.4 * 0.15;
+            const optionalWeight = (tierValues.optional / 100) * 0.1 * 0.05;
+            
+            const weightedCompletion = (mcWeight + coreWeight + desirableWeight + optionalWeight) * 100;
+            
+            // Update tier calculation display
+            document.getElementById('calc-mc-display').textContent = tierValues.missionCritical + '%';
+            document.getElementById('calc-mc-result').textContent = (mcWeight * 100).toFixed(1) + '%';
+            
+            document.getElementById('calc-core-display').textContent = tierValues.core + '%';
+            document.getElementById('calc-core-result').textContent = (coreWeight * 100).toFixed(1) + '%';
+            
+            document.getElementById('calc-desirable-display').textContent = tierValues.desirable + '%';
+            document.getElementById('calc-desirable-result').textContent = (desirableWeight * 100).toFixed(1) + '%';
+            
+            document.getElementById('calc-optional-display').textContent = tierValues.optional + '%';
+            document.getElementById('calc-optional-result').textContent = (optionalWeight * 100).toFixed(1) + '%';
+            
+            document.getElementById('calc-weighted-total').textContent = weightedCompletion.toFixed(1) + '%';
+            
+            // Calculate quality multiplier
+            let totalMultiplier = 0;
+            let scoredCount = 0;
+            let anyFail = false;
+            
+            for (const [criterion, score] of Object.entries(scores)) {
+                if (score === null) {
+                    document.getElementById(`calc-${criterion}`).textContent = 'Not scored';
+                } else {
+                    const mult = multipliers[score];
+                    if (score === 0) anyFail = true;
+                    totalMultiplier += mult;
+                    scoredCount++;
+                    document.getElementById(`calc-${criterion}`).textContent = 
+                        `${score} (${mult.toFixed(1)}x)`;
+                }
+            }
+            
+            const avgMultiplier = scoredCount > 0 ? totalMultiplier / scoredCount : 0;
+            document.getElementById('calc-avg-multiplier').textContent = avgMultiplier.toFixed(2) + 'x';
+            
+            // Update final calculation displays
+            document.getElementById('calc-final-weighted').textContent = weightedCompletion.toFixed(1) + '%';
+            document.getElementById('calc-final-multiplier').textContent = avgMultiplier.toFixed(2) + 'x';
+            document.getElementById('calc-formula').textContent = 
+                `200,000 × ${weightedCompletion.toFixed(1)}% × ${avgMultiplier.toFixed(2)}x`;
+            
+            // Calculate final payout
+            const allScored = scoredCount === 5;
+            const meetsThreshold = tierValues.missionCritical >= 88;
+            
+            if (anyFail || !meetsThreshold) {
+                document.getElementById('finalPayoutAmount').textContent = '0 points';
+                document.getElementById('finalPayoutDisplay').classList.add('failed');
+                document.getElementById('payoutBreakdown').textContent = 
+                    anyFail ? 'Submission failed: One or more criteria scored 0' : 
+                    'Submission failed: Mission Critical tier below 88% threshold';
+            } else if (allScored) {
+                const finalPayout = Math.round(200000 * (weightedCompletion / 100) * avgMultiplier);
+                const cappedPayout = Math.min(finalPayout, 200000);
+                
+                document.getElementById('finalPayoutAmount').textContent = 
+                    cappedPayout.toLocaleString() + ' points';
+                document.getElementById('finalPayoutDisplay').classList.remove('failed');
+                document.getElementById('payoutBreakdown').textContent = 
+                    `200,000 × ${weightedCompletion.toFixed(1)}% × ${avgMultiplier.toFixed(2)}x = ${finalPayout.toLocaleString()} points` +
+                    (finalPayout > 200000 ? ' (capped at budget max)' : '');
+            } else {
+                document.getElementById('finalPayoutAmount').textContent = '0 points';
+                document.getElementById('finalPayoutDisplay').classList.remove('failed');
+                document.getElementById('payoutBreakdown').textContent = 
+                    'Complete all evaluations to calculate final payout';
+            }
+        }
+        
+        function toggleAIPanel() {
+            const panel = document.getElementById('aiPanel');
+            const toggleText = document.getElementById('toggleText');
+            
+            if (panel.classList.contains('hidden')) {
+                panel.classList.remove('hidden');
+                toggleText.textContent = 'Hide AI Assistant';
+            } else {
+                panel.classList.add('hidden');
+                toggleText.textContent = 'Show AI Assistant';
+            }
+        }
+        
+        function showAcceptConfirmation() {
+            const allScored = Object.values(scores).every(s => s !== null);
+            const meetsThreshold = tierValues.missionCritical >= 88;
+            const anyFail = Object.values(scores).some(s => s === 0);
+            
+            if (!allScored) {
+                alert('Please complete all evaluations before finalizing.');
+                return;
+            }
+            
+            if (!meetsThreshold) {
+                alert('Cannot accept: Mission Critical tier must be ≥88% complete.');
+                return;
+            }
+            
+            if (anyFail) {
+                alert('Cannot accept: One or more criteria scored 0 (automatic fail).');
+                return;
+            }
+            
+            const weightedCompletion = (
+                (tierValues.missionCritical / 100) * 1.0 * 0.5 +
+                (tierValues.core / 100) * 0.7 * 0.3 +
+                (tierValues.desirable / 100) * 0.4 * 0.15 +
+                (tierValues.optional / 100) * 0.1 * 0.05
+            ) * 100;
+            
+            const totalMultiplier = Object.values(scores).reduce((sum, score) => sum + multipliers[score], 0);
+            const avgMultiplier = totalMultiplier / Object.values(scores).length;
+            
+            const finalPayout = Math.min(
+                Math.round(200000 * (weightedCompletion / 100) * avgMultiplier),
+                200000
+            );
+            
+            if (confirm(`Accept this submission and pay ${finalPayout.toLocaleString()} points to Jordan Kim?`)) {
+                alert('Submission accepted! Payout processed.');
+            }
+        }
+    </script>
+    </div>
+</body>
+</html>

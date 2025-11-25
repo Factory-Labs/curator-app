@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Medium Bounty - No AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #fafafa;
+            color: #1a1a1a;
+        }
+        
+        .header {
+            background: white;
+            border-bottom: 1px solid #e5e5e5;
+            padding: 20px 30px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.1);
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: #1a1a1a;
+        }
+        
+        .header p {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 0 30px 30px;
+        }
+        
+        .form-section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.1);
+        }
+        
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        
+        .form-field {
+            margin-bottom: 25px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+        
+        .form-label.required::after {
+            content: " *";
+            color: #ef4444;
+        }
+        
+        .form-help {
+            font-size: 13px;
+            color: #666;
+            margin-top: 6px;
+            font-style: italic;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e5e5e5;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #7c3aed;
+        }
+        
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .char-counter {
+            text-align: right;
+            font-size: 12px;
+            color: #999;
+            margin-top: 4px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .difficulty-display {
+            background: #dbeafe;
+            border: 2px solid #3b82f6;
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 600;
+            color: #1e40af;
+        }
+        
+        .number-input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .number-input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #e5e5e5;
+            border-radius: 6px;
+            font-size: 14px;
+            text-align: center;
+        }
+        
+        .number-btn {
+            width: 40px;
+            height: 40px;
+            border: 1px solid #e5e5e5;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .number-btn:hover {
+            border-color: #7c3aed;
+            color: #667eea;
+        }
+        
+        .criteria-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        .criteria-table th {
+            text-align: left;
+            padding: 12px;
+            background: #f9fafb;
+            font-size: 13px;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        
+        .criteria-table td {
+            padding: 15px 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .criteria-name {
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        
+        .criteria-description {
+            font-size: 13px;
+            color: #666;
+            margin-top: 4px;
+        }
+        
+        .weight-input {
+            width: 80px;
+            padding: 8px;
+            border: 1px solid #e5e5e5;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .weight-total {
+            padding: 15px 12px;
+            background: #f9fafb;
+            font-weight: 700;
+            font-size: 16px;
+        }
+        
+        .weight-total.valid {
+            color: #10b981;
+        }
+        
+        .weight-total.invalid {
+            color: #ef4444;
+        }
+        
+        .reset-weights-btn {
+            padding: 8px 16px;
+            background: #f3f4f6;
+            border: 1px solid #e5e5e5;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .reset-weights-btn:hover {
+            background: #e5e7eb;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        
+        .alert.warning {
+            background: #fef3c7;
+            border: 2px solid #fbbf24;
+            color: #92400e;
+        }
+        
+        .alert.error {
+            background: #fee2e2;
+            border: 2px solid #ef4444;
+            color: #991b1b;
+        }
+        
+        .budget-calculator {
+            background: #f0f9ff;
+            border: 2px solid #3b82f6;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .budget-calculator h4 {
+            font-size: 15px;
+            color: #1e40af;
+            margin-bottom: 12px;
+        }
+        
+        .budget-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 14px;
+        }
+        
+        .budget-row.total {
+            border-top: 2px solid #3b82f6;
+            margin-top: 10px;
+            padding-top: 12px;
+            font-weight: 700;
+            font-size: 16px;
+            color: #1e40af;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            padding: 20px 0;
+            border-top: 1px solid #e5e5e5;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: #7c3aed;
+            color: white;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            background: #6d28d9;
+        }
+        
+        .btn-primary:disabled {
+            background: #d1d5db;
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #666;
+        }
+        
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+        
+        .validation-message {
+            display: none;
+            background: #fee2e2;
+            border: 2px solid #ef4444;
+            color: #991b1b;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        
+        .validation-message.visible {
+            display: block;
+        }
+        
+        .validation-list {
+            margin-top: 10px;
+            padding-left: 20px;
+        }
+        
+        .validation-list li {
+            margin: 5px 0;
+        }
+    
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 72px;
+            height: 100vh;
+            background: white;
+            border-right: 1px solid #e5e5e5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+            gap: 20px;
+            z-index: 100;
+        }
+        
+        .sidebar-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+            color: #666;
+            font-size: 20px;
+        }
+        
+        .sidebar-icon:hover {
+            background: #f5f5f5;
+        }
+        
+        .sidebar-icon.active {
+            background: #ede9fe;
+            color: #7c3aed;
+        }
+        
+        .main-wrapper {
+            margin-left: 72px;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-left {
+            flex: 1;
+        }
+        
+        .header-subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-top: 4px;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .points-badge {
+            background: #ede9fe;
+            color: #7c3aed;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .points-icon {
+            width: 16px;
+            height: 16px;
+            background: #7c3aed;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 10px;
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-icon">☰</div>
+        <div class="sidebar-icon active">◎</div>
+        <div class="sidebar-icon">◇</div>
+    </div>
+    
+    <div class="main-wrapper">
+
+    <div class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <h1>Create Medium Bounty</h1>
+                <p class="header-subtitle">Set up a new bounty request for data curators</p>
+            </div>
+            <div class="header-right">
+                <div class="points-badge">
+                    <div class="points-icon">△</div>
+                    3000
+                </div>
+                <div class="user-avatar"></div>
+            </div>
+        </div>
+</div>
+
+    <div class="container">
+        <form id="bountyForm">
+            <!-- Basic Information -->
+            <div class="form-section">
+                <h2 class="section-title">Basic Information</h2>
+                
+                <div class="form-field">
+                    <label class="form-label required">Title</label>
+                    <input type="text" class="form-input" id="title" maxlength="100" 
+                           placeholder="e.g., Research podcast data sources and propose ontology" required>
+                    <div class="char-counter"><span id="titleCount">0</span>/100</div>
+                </div>
+                
+                <div class="form-field">
+                    <label class="form-label required">Description</label>
+                    <textarea class="form-input form-textarea" id="description" maxlength="1000"
+                              placeholder="Detailed explanation of what's needed..." required></textarea>
+                    <div class="char-counter"><span id="descCount">0</span>/1000</div>
+                    <div class="form-help">Explain clearly what work is required and what deliverables you expect</div>
+                </div>
+                
+                <div class="form-field">
+                    <label class="form-label required">Scope</label>
+                    <textarea class="form-input form-textarea" id="scope" maxlength="500"
+                              placeholder="What's in scope / What's out of scope..." required></textarea>
+                    <div class="char-counter"><span id="scopeCount">0</span>/500</div>
+                    <div class="form-help">Define boundaries: what's included and what's not</div>
+                </div>
+            </div>
+
+            <!-- Bounty Parameters -->
+            <div class="form-section">
+                <h2 class="section-title">Bounty Parameters</h2>
+                
+                <div class="form-field">
+                    <label class="form-label">Difficulty Level</label>
+                    <div class="difficulty-display">MEDIUM</div>
+                </div>
+                
+                <div class="form-field">
+                    <label class="form-label required">Max Contributors</label>
+                    <div class="number-input-group">
+                        <button type="button" class="number-btn" onclick="adjustNumber('maxContributors', -1)">−</button>
+                        <input type="number" class="number-input" id="maxContributors" 
+                               min="5" max="20" value="10" required>
+                        <button type="button" class="number-btn" onclick="adjustNumber('maxContributors', 1)">+</button>
+                    </div>
+                    <div class="form-help">Number of curator slots available (5-20 people)</div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-field">
+                        <label class="form-label required">Minimum Reward</label>
+                        <input type="number" class="form-input" id="minReward" 
+                               min="1000" step="1000" value="5000" placeholder="5,000" required>
+                        <div class="form-help">Threshold pass payout (points)</div>
+                    </div>
+                    
+                    <div class="form-field">
+                        <label class="form-label required">Maximum Reward</label>
+                        <input type="number" class="form-input" id="maxReward" 
+                               min="5000" step="1000" value="50000" placeholder="50,000" required>
+                        <div class="form-help">Perfect score payout (points)</div>
+                    </div>
+                </div>
+                
+                <div class="form-field">
+                    <label class="form-label required">Total Allocated Budget</label>
+                    <input type="number" class="form-input" id="totalBudget" 
+                           min="10000" step="10000" value="100000" placeholder="100,000" required>
+                    <div class="form-help">Total point pool for this bounty</div>
+                </div>
+                
+                <div class="budget-calculator">
+                    <h4>Budget Calculator</h4>
+                    <div class="budget-row">
+                        <span>Max Contributors:</span>
+                        <span id="calcContributors">10</span>
+                    </div>
+                    <div class="budget-row">
+                        <span>Minimum Reward Each:</span>
+                        <span id="calcMinReward">5,000 points</span>
+                    </div>
+                    <div class="budget-row">
+                        <span>Required Budget (min):</span>
+                        <span id="calcMinBudget">50,000 points</span>
+                    </div>
+                    <div class="budget-row total">
+                        <span>Your Budget:</span>
+                        <span id="calcYourBudget">100,000 points</span>
+                    </div>
+                </div>
+                
+                <div class="form-row" style="margin-top: 25px;">
+                    <div class="form-field">
+                        <label class="form-label required">Active Until</label>
+                        <input type="datetime-local" class="form-input" id="activeUntil" required>
+                        <div class="form-help">When applications close</div>
+                    </div>
+                    
+                    <div class="form-field">
+                        <label class="form-label required">Deadline</label>
+                        <input type="datetime-local" class="form-input" id="deadline" required>
+                        <div class="form-help">When work must be submitted</div>
+                    </div>
+                </div>
+                
+                <div class="form-field">
+                    <label class="form-label">Skills Required (Optional)</label>
+                    <input type="text" class="form-input" id="skills" 
+                           placeholder="e.g., Web scraping, data standardization, ontology design">
+                    <div class="form-help">Domain expertise needed for this bounty</div>
+                </div>
+            </div>
+
+            <!-- Evaluation Standards -->
+            <div class="form-section">
+                <h2 class="section-title">Evaluation Standards</h2>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <div>
+                        <strong>Set Criteria Weighting</strong>
+                        <div style="font-size: 13px; color: #666; margin-top: 4px;">Must total exactly 100%</div>
+                    </div>
+                    <button type="button" class="reset-weights-btn" onclick="resetWeights()">
+                        Reset to 20% Each
+                    </button>
+                </div>
+                
+                <div id="weightingError" class="alert error" style="display: none;">
+                    <strong>⚠️ Invalid Weighting</strong><br>
+                    Total must equal 100%. Currently: <span id="currentTotal">0</span>%
+                </div>
+                
+                <table class="criteria-table">
+                    <thead>
+                        <tr>
+                            <th>Criterion</th>
+                            <th>Description</th>
+                            <th style="width: 120px; text-align: center;">Weight %</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="criteria-name">Accuracy</div>
+                            </td>
+                            <td>
+                                <div class="criteria-description">Data correctness, verified sources</div>
+                            </td>
+                            <td style="text-align: center;">
+                                <input type="number" class="weight-input" id="weightAccuracy" 
+                                       min="0" max="100" value="20" onchange="updateWeightTotal()">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="criteria-name">Completeness</div>
+                            </td>
+                            <td>
+                                <div class="criteria-description">Field coverage (Mission Critical/Core/Desirable/Optional)</div>
+                            </td>
+                            <td style="text-align: center;">
+                                <input type="number" class="weight-input" id="weightCompleteness" 
+                                       min="0" max="100" value="20" onchange="updateWeightTotal()">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="criteria-name">Usefulness</div>
+                            </td>
+                            <td>
+                                <div class="criteria-description">Value-add, prevents duplicate/redundant work</div>
+                            </td>
+                            <td style="text-align: center;">
+                                <input type="number" class="weight-input" id="weightUsefulness" 
+                                       min="0" max="100" value="20" onchange="updateWeightTotal()">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="criteria-name">Skill</div>
+                            </td>
+                            <td>
+                                <div class="criteria-description">Expertise and methodology demonstrated</div>
+                            </td>
+                            <td style="text-align: center;">
+                                <input type="number" class="weight-input" id="weightSkill" 
+                                       min="0" max="100" value="20" onchange="updateWeightTotal()">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="criteria-name">Effort</div>
+                            </td>
+                            <td>
+                                <div class="criteria-description">Work intensity and thoroughness</div>
+                            </td>
+                            <td style="text-align: center;">
+                                <input type="number" class="weight-input" id="weightEffort" 
+                                       min="0" max="100" value="20" onchange="updateWeightTotal()">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" class="weight-total">
+                                <strong>Total:</strong>
+                            </td>
+                            <td class="weight-total" style="text-align: center;">
+                                <span id="weightTotal" class="valid">100%</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div style="margin-top: 30px;">
+                    <h3 style="font-size: 16px; margin-bottom: 15px; color: #1a1a1a;">
+                        Threshold Expectations
+                    </h3>
+                    <p style="font-size: 13px; color: #666; margin-bottom: 20px;">
+                        Define what constitutes a "pass" for each criterion
+                    </p>
+                    
+                    <div class="form-field">
+                        <label class="form-label required">Accuracy Threshold</label>
+                        <textarea class="form-input" id="thresholdAccuracy" rows="2" 
+                                  placeholder="e.g., All sources must be verified and accessible..." required></textarea>
+                    </div>
+                    
+                    <div class="form-field">
+                        <label class="form-label required">Completeness Threshold</label>
+                        <textarea class="form-input" id="thresholdCompleteness" rows="2" 
+                                  placeholder="e.g., Must identify at least 3 authoritative sources..." required></textarea>
+                    </div>
+                    
+                    <div class="form-field">
+                        <label class="form-label required">Usefulness Threshold</label>
+                        <textarea class="form-input" id="thresholdUsefulness" rows="2" 
+                                  placeholder="e.g., Proposed ontology must differ meaningfully from existing..." required></textarea>
+                    </div>
+                    
+                    <div class="form-field">
+                        <label class="form-label required">Skill Threshold</label>
+                        <textarea class="form-input" id="thresholdSkill" rows="2" 
+                                  placeholder="e.g., Must demonstrate understanding of data structures..." required></textarea>
+                    </div>
+                    
+                    <div class="form-field">
+                        <label class="form-label required">Effort Threshold</label>
+                        <textarea class="form-input" id="thresholdEffort" rows="2" 
+                                  placeholder="e.g., Must test sources for accessibility..." required></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Optional Features -->
+            <div class="form-section">
+                <h2 class="section-title">Optional Features</h2>
+                
+                <div class="form-field">
+                    <label class="form-label">Application Requirements</label>
+                    <textarea class="form-input" id="appRequirements" rows="3" 
+                              placeholder="e.g., Must have completed 10+ low bounties with 80%+ pass rate"></textarea>
+                    <div class="form-help">Prerequisites for applying (leave blank if none)</div>
+                </div>
+            </div>
+
+            <div class="validation-message" id="validationMessage">
+                <strong>Cannot Publish Bounty</strong>
+                <ul class="validation-list" id="validationList"></ul>
+            </div>
+
+            <div class="action-buttons">
+                <button type="button" class="btn btn-secondary" onclick="saveDraft()">
+                    Save Draft
+                </button>
+                <button type="button" class="btn btn-primary" id="publishBtn" onclick="publishBounty()">
+                    Publish Bounty
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Character counters
+        function setupCharCounter(inputId, counterId) {
+            const input = document.getElementById(inputId);
+            const counter = document.getElementById(counterId);
+            
+            input.addEventListener('input', () => {
+                counter.textContent = input.value.length;
+            });
+        }
+        
+        setupCharCounter('title', 'titleCount');
+        setupCharCounter('description', 'descCount');
+        setupCharCounter('scope', 'scopeCount');
+        
+        // Number adjusters
+        function adjustNumber(inputId, delta) {
+            const input = document.getElementById(inputId);
+            const min = parseInt(input.min);
+            const max = parseInt(input.max);
+            let value = parseInt(input.value) + delta;
+            
+            value = Math.max(min, Math.min(max, value));
+            input.value = value;
+            
+            updateBudgetCalculator();
+        }
+        
+        // Budget calculator
+        function updateBudgetCalculator() {
+            const contributors = parseInt(document.getElementById('maxContributors').value);
+            const minReward = parseInt(document.getElementById('minReward').value);
+            const totalBudget = parseInt(document.getElementById('totalBudget').value);
+            
+            document.getElementById('calcContributors').textContent = contributors;
+            document.getElementById('calcMinReward').textContent = minReward.toLocaleString() + ' points';
+            document.getElementById('calcMinBudget').textContent = (contributors * minReward).toLocaleString() + ' points';
+            document.getElementById('calcYourBudget').textContent = totalBudget.toLocaleString() + ' points';
+        }
+        
+        document.getElementById('maxContributors').addEventListener('input', updateBudgetCalculator);
+        document.getElementById('minReward').addEventListener('input', updateBudgetCalculator);
+        document.getElementById('totalBudget').addEventListener('input', updateBudgetCalculator);
+        
+        // Weight management
+        function updateWeightTotal() {
+            const weights = [
+                parseInt(document.getElementById('weightAccuracy').value) || 0,
+                parseInt(document.getElementById('weightCompleteness').value) || 0,
+                parseInt(document.getElementById('weightUsefulness').value) || 0,
+                parseInt(document.getElementById('weightSkill').value) || 0,
+                parseInt(document.getElementById('weightEffort').value) || 0
+            ];
+            
+            const total = weights.reduce((sum, w) => sum + w, 0);
+            const totalSpan = document.getElementById('weightTotal');
+            const errorDiv = document.getElementById('weightingError');
+            
+            document.getElementById('currentTotal').textContent = total;
+            totalSpan.textContent = total + '%';
+            
+            if (total === 100) {
+                totalSpan.className = 'valid';
+                errorDiv.style.display = 'none';
+            } else {
+                totalSpan.className = 'invalid';
+                errorDiv.style.display = 'block';
+            }
+        }
+        
+        function resetWeights() {
+            ['weightAccuracy', 'weightCompleteness', 'weightUsefulness', 'weightSkill', 'weightEffort']
+                .forEach(id => document.getElementById(id).value = 20);
+            updateWeightTotal();
+        }
+        
+        // Validation
+        function validateForm() {
+            const errors = [];
+            
+            // Check required fields
+            if (!document.getElementById('title').value.trim()) {
+                errors.push('Title is required');
+            }
+            if (!document.getElementById('description').value.trim()) {
+                errors.push('Description is required');
+            }
+            if (!document.getElementById('scope').value.trim()) {
+                errors.push('Scope is required');
+            }
+            
+            // Check weights total 100%
+            const weightTotal = [
+                parseInt(document.getElementById('weightAccuracy').value) || 0,
+                parseInt(document.getElementById('weightCompleteness').value) || 0,
+                parseInt(document.getElementById('weightUsefulness').value) || 0,
+                parseInt(document.getElementById('weightSkill').value) || 0,
+                parseInt(document.getElementById('weightEffort').value) || 0
+            ].reduce((sum, w) => sum + w, 0);
+            
+            if (weightTotal !== 100) {
+                errors.push('Criteria weighting must total exactly 100%');
+            }
+            
+            // Check budget
+            const contributors = parseInt(document.getElementById('maxContributors').value);
+            const minReward = parseInt(document.getElementById('minReward').value);
+            const totalBudget = parseInt(document.getElementById('totalBudget').value);
+            
+            if (totalBudget < contributors * minReward) {
+                errors.push('Total budget must be at least (Max Contributors × Minimum Reward)');
+            }
+            
+            // Check dates
+            const activeUntil = new Date(document.getElementById('activeUntil').value);
+            const deadline = new Date(document.getElementById('deadline').value);
+            
+            if (!document.getElementById('activeUntil').value) {
+                errors.push('Active Until date is required');
+            }
+            if (!document.getElementById('deadline').value) {
+                errors.push('Deadline is required');
+            }
+            if (deadline <= activeUntil) {
+                errors.push('Deadline must be after Active Until date');
+            }
+            
+            // Check thresholds
+            ['thresholdAccuracy', 'thresholdCompleteness', 'thresholdUsefulness', 
+             'thresholdSkill', 'thresholdEffort'].forEach(id => {
+                if (!document.getElementById(id).value.trim()) {
+                    errors.push(`${id.replace('threshold', '')} threshold is required`);
+                }
+            });
+            
+            return errors;
+        }
+        
+        function saveDraft() {
+            alert('Draft saved successfully!\n\n(In production, this would save to database)');
+        }
+        
+        function publishBounty() {
+            const errors = validateForm();
+            
+            if (errors.length > 0) {
+                const validationMsg = document.getElementById('validationMessage');
+                const validationList = document.getElementById('validationList');
+                
+                validationList.innerHTML = errors.map(e => `<li>${e}</li>`).join('');
+                validationMsg.classList.add('visible');
+                
+                validationMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else {
+                if (confirm('Publish this bounty? It will become visible to all curators.')) {
+                    alert('Bounty published successfully!\n\n(In production, this would create the bounty)');
+                }
+            }
+        }
+        
+        // Initialize
+        updateBudgetCalculator();
+        updateWeightTotal();
+    </script>
+    </div>
+</body>
+</html>

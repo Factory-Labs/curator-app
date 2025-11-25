@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Low Bounty Evaluation - AI Assisted</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #fafafa;
+            color: #1a1a1a;
+        }
+        
+        .header {
+            background: white;
+            border-bottom: 1px solid #e5e5e5;
+            padding: 20px 30px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.1);
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: #1a1a1a;
+        }
+        
+        .header-meta {
+            display: flex;
+            gap: 30px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .container {
+            display: flex;
+            height: calc(100vh - 120px);
+        }
+        
+        .submission-panel {
+            flex: 1;
+            background: white;
+            padding: 30px;
+            overflow-y: auto;
+            border-right: 1px solid #e5e5e5;
+        }
+        
+        .ai-assistant-panel {
+            width: 420px;
+            background: #fafafa;
+            padding: 25px;
+            overflow-y: auto;
+            border-left: 1px solid #e0e0e0;
+        }
+        
+        .ai-assistant-panel.hidden {
+            display: none;
+        }
+        
+        .ai-panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        
+        .ai-panel-header h2 {
+            font-size: 16px;
+            color: #666;
+            font-weight: 600;
+        }
+        
+        .ai-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        
+        .toggle-ai, .data-viewer-toggle {
+            background: #666;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        
+        .toggle-ai:hover, .data-viewer-toggle:hover {
+            background: #555;
+        }
+        
+        .data-viewer-toggle {
+            background: #667eea;
+        }
+        
+        .data-viewer-toggle:hover {
+            background: #5568d3;
+        }
+        
+        .submission-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .submission-card {
+            background: white;
+            border: 1px solid #e5e5e5;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.2s;
+            position: relative;
+        }
+        
+        .submission-card:hover {
+            border-color: #7c3aed;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .submission-card.passed {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+        
+        .submission-card.failed {
+            border-color: #ef4444;
+            background: #fef2f2;
+        }
+        
+        .submission-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .contributor-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .avatar-small {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .contributor-name {
+            font-weight: 600;
+            font-size: 14px;
+            color: #1a1a1a;
+        }
+        
+        .submission-status {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .submission-status.pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .submission-status.passed {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .submission-status.failed {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .submission-content {
+            background: #fafafa;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            line-height: 1.6;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        
+        .submission-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 15px;
+        }
+        
+        .criteria-checklist {
+            margin-bottom: 15px;
+        }
+        
+        .criteria-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .criterion-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .criterion-item:last-child {
+            border-bottom: none;
+        }
+        
+        .criterion-checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #d1d5db;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .criterion-checkbox:hover {
+            border-color: #7c3aed;
+        }
+        
+        .criterion-checkbox.checked {
+            background: #7c3aed;
+            border-color: #10b981;
+        }
+        
+        .criterion-checkbox.checked::after {
+            content: "✓";
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .criterion-label {
+            flex: 1;
+            font-size: 13px;
+            color: #555;
+        }
+        
+        .ai-check-indicator {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+        
+        .ai-check-indicator.pass {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .ai-check-indicator.fail {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .ai-check-indicator.warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .decision-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-pass {
+            flex: 1;
+            padding: 10px;
+            background: #7c3aed;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-pass:hover {
+            background: #6d28d9;
+        }
+        
+        .btn-fail {
+            flex: 1;
+            padding: 10px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-fail:hover {
+            background: #dc2626;
+        }
+        
+        .feedback-section {
+            margin-top: 15px;
+            display: none;
+        }
+        
+        .feedback-section.visible {
+            display: block;
+        }
+        
+        .feedback-textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e5e5e5;
+            border-radius: 6px;
+            font-size: 13px;
+            resize: vertical;
+            min-height: 60px;
+            font-family: inherit;
+        }
+        
+        .feedback-textarea:focus {
+            outline: none;
+            border-color: #7c3aed;
+        }
+        
+        .summary-panel {
+            background: white;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .summary-panel h3 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #1a1a1a;
+        }
+        
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .stat-box {
+            text-align: center;
+            padding: 15px;
+            background: #fafafa;
+            border-radius: 8px;
+        }
+        
+        .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .stat-number.total {
+            color: #6b7280;
+        }
+        
+        .stat-number.passed {
+            color: #10b981;
+        }
+        
+        .stat-number.failed {
+            color: #ef4444;
+        }
+        
+        .stat-number.pending {
+            color: #f59e0b;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .payout-calculation {
+            background: #f0f9ff;
+            border: 2px solid #3b82f6;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .payout-calculation h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e40af;
+            margin-bottom: 15px;
+        }
+        
+        .payout-formula {
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 10px;
+        }
+        
+        .payout-result {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1e40af;
+            margin-top: 10px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            padding: 20px 30px;
+            background: white;
+            border-top: 1px solid #e5e5e5;
+            position: sticky;
+            bottom: 0;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-finalize {
+            background: #7c3aed;
+            color: white;
+        }
+        
+        .btn-finalize:hover {
+            background: #6d28d9;
+        }
+        
+        .btn-finalize:disabled {
+            background: #d1d5db;
+            cursor: not-allowed;
+        }
+        
+        .btn-draft {
+            background: #f3f4f6;
+            color: #666;
+        }
+        
+        .btn-draft:hover {
+            background: #e5e7eb;
+        }
+        
+        .ai-alert {
+            background: #fef3c7;
+            border: 2px solid #fbbf24;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .ai-alert.success {
+            background: #d1fae5;
+            border-color: #10b981;
+        }
+        
+        .ai-alert.danger {
+            background: #fee2e2;
+            border-color: #ef4444;
+        }
+        
+        .ai-alert-title {
+            font-weight: 600;
+            font-size: 13px;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .ai-alert-content {
+            font-size: 12px;
+            line-height: 1.5;
+            color: #555;
+        }
+        
+        .verification-item {
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            font-size: 12px;
+        }
+        
+        .verification-item.pass {
+            border-left: 3px solid #10b981;
+        }
+        
+        .verification-item.fail {
+            border-left: 3px solid #ef4444;
+        }
+        
+        .verification-item.warning {
+            border-left: 3px solid #f59e0b;
+        }
+        
+        .verification-label {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .verification-detail {
+            color: #666;
+            font-size: 11px;
+        }
+        
+        .section-divider {
+            height: 2px;
+            background: #e0e0e0;
+            margin: 20px 0;
+        }
+        
+        .comparison-box {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .comparison-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .comparison-text {
+            font-size: 12px;
+            color: #555;
+            line-height: 1.5;
+        }
+        
+        .filter-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .filter-tab {
+            padding: 8px 16px;
+            background: #f3f4f6;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .filter-tab.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .filter-tab:hover:not(.active) {
+            background: #e5e7eb;
+        }
+        
+        .criteria-definitions {
+            background: #f0f9ff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .criteria-definitions h3 {
+            font-size: 16px;
+            color: #1e40af;
+            margin-bottom: 15px;
+        }
+        
+        .criteria-definitions ul {
+            list-style: none;
+        }
+        
+        .criteria-definitions li {
+            padding: 8px 0;
+            font-size: 13px;
+            color: #555;
+            border-bottom: 1px solid #e0e7ff;
+        }
+        
+        .criteria-definitions li:last-child {
+            border-bottom: none;
+        }
+        
+        .criteria-definitions strong {
+            color: #1e40af;
+        }
+    
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 72px;
+            height: 100vh;
+            background: white;
+            border-right: 1px solid #e5e5e5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+            gap: 20px;
+            z-index: 100;
+        }
+        
+        .sidebar-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+            color: #666;
+            font-size: 20px;
+        }
+        
+        .sidebar-icon:hover {
+            background: #f5f5f5;
+        }
+        
+        .sidebar-icon.active {
+            background: #ede9fe;
+            color: #7c3aed;
+        }
+        
+        .main-wrapper {
+            margin-left: 72px;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-left {
+            flex: 1;
+        }
+        
+        .header-subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-top: 4px;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .points-badge {
+            background: #ede9fe;
+            color: #7c3aed;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .points-icon {
+            width: 16px;
+            height: 16px;
+            background: #7c3aed;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 10px;
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-icon">☰</div>
+        <div class="sidebar-icon active">◎</div>
+        <div class="sidebar-icon">◇</div>
+    </div>
+    
+    <div class="main-wrapper">
+
+    <div class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <h1>Evaluate Low Bounty Submissions</h1>
+            </div>
+            <div class="header-right">
+                <div class="points-badge">
+                    <div class="points-icon">△</div>
+                    3000
+                </div>
+                <div class="user-avatar"></div>
+            </div>
+        </div>
+</div>
+            </div>
+            <div style="display: flex; gap: 12px;">
+                <button class="toggle-ai" onclick="toggleAIPanel()">
+                    <span id="toggleText">Hide AI Assistant</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="submission-panel">
+            <div class="summary-panel">
+                <h3>Evaluation Progress</h3>
+                <div class="summary-stats">
+                    <div class="stat-box">
+                        <div class="stat-number total" id="totalCount">28</div>
+                        <div class="stat-label">Total</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number passed" id="passedCount">0</div>
+                        <div class="stat-label">Passed</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number failed" id="failedCount">0</div>
+                        <div class="stat-label">Failed</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number pending" id="pendingCount">28</div>
+                        <div class="stat-label">Pending</div>
+                    </div>
+                </div>
+                
+                <div class="payout-calculation">
+                    <h4>Payout Calculation</h4>
+                    <div class="payout-formula">
+                        Total Budget: <strong>10,000 points</strong>
+                    </div>
+                    <div class="payout-formula">
+                        Passing Submissions: <strong id="passingSubmissions">0</strong>
+                    </div>
+                    <div class="payout-formula">
+                        Payout per Passing Submission: <strong id="perSubmissionPayout">—</strong>
+                    </div>
+                    <div class="payout-result" id="payoutResult">
+                        Complete evaluations to calculate
+                    </div>
+                </div>
+            </div>
+
+            <div class="criteria-definitions">
+                <h3>Pass/Fail Requirements for This Bounty</h3>
+                <ul>
+                    <li><strong>Minimum 50 characters:</strong> Review must be at least 50 characters long</li>
+                    <li><strong>Maximum 200 characters:</strong> Review must not exceed 200 characters</li>
+                    <li><strong>Cites Source:</strong> Must reference album name and artist</li>
+                    <li><strong>No AI-Generated Content:</strong> Content must appear human-written</li>
+                    <li><strong>No Profanity/Spam:</strong> Content must be appropriate</li>
+                </ul>
+                <p style="margin-top: 12px; font-size: 12px; color: #666; font-style: italic;">
+                    ALL requirements must be met to pass. Missing ANY requirement = automatic fail.
+                </p>
+            </div>
+
+            <div class="filter-tabs">
+                <button class="filter-tab active" onclick="filterSubmissions('all')">All (28)</button>
+                <button class="filter-tab" onclick="filterSubmissions('pending')">Pending (<span id="filterPendingCount">28</span>)</button>
+                <button class="filter-tab" onclick="filterSubmissions('passed')">Passed (<span id="filterPassedCount">0</span>)</button>
+                <button class="filter-tab" onclick="filterSubmissions('failed')">Failed (<span id="filterFailedCount">0</span>)</button>
+            </div>
+
+            <div class="submission-grid" id="submissionGrid">
+                <!-- Submission cards will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <div class="ai-assistant-panel" id="aiPanel">
+            <div class="ai-panel-header">
+                <h2>AI ASSISTANT</h2>
+                <span class="ai-badge">CLAUDE SONNET 4.5</span>
+            </div>
+
+            <div class="ai-alert success">
+                <div class="ai-alert-title">
+                    ✓ Automated Checks Complete
+                </div>
+                <div class="ai-alert-content">
+                    All submissions have been pre-screened. Review AI findings below each submission.
+                </div>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <h3 style="font-size: 14px; font-weight: 600; margin-bottom: 12px; color: #1a1a1a;">
+                Batch Analysis Summary
+            </h3>
+
+            <div class="verification-item pass">
+                <div class="verification-label">✓ Character Count</div>
+                <div class="verification-detail">24 submissions meet length requirements (50-200 chars)</div>
+            </div>
+
+            <div class="verification-item warning">
+                <div class="verification-label">⚠ Character Count Issues</div>
+                <div class="verification-detail">4 submissions fail length requirements (3 too short, 1 too long)</div>
+            </div>
+
+            <div class="verification-item pass">
+                <div class="verification-label">✓ Source Citation</div>
+                <div class="verification-detail">26 submissions reference album and artist</div>
+            </div>
+
+            <div class="verification-item warning">
+                <div class="verification-label">⚠ Missing Citations</div>
+                <div class="verification-detail">2 submissions lack clear album/artist reference</div>
+            </div>
+
+            <div class="verification-item pass">
+                <div class="verification-label">✓ AI Content Detection</div>
+                <div class="verification-detail">25 submissions show human writing patterns</div>
+            </div>
+
+            <div class="verification-item warning">
+                <div class="verification-label">⚠ Possible AI Content</div>
+                <div class="verification-detail">3 submissions show high AI-generation probability (>85%)</div>
+            </div>
+
+            <div class="verification-item pass">
+                <div class="verification-label">✓ Content Appropriateness</div>
+                <div class="verification-detail">All 28 submissions pass profanity/spam checks</div>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <h3 style="font-size: 14px; font-weight: 600; margin-bottom: 12px; color: #1a1a1a;">
+                Evaluation Guidance
+            </h3>
+
+            <div class="comparison-box">
+                <div class="comparison-title">Expected Pass Rate</div>
+                <div class="comparison-text">
+                    Based on automated checks, approximately <strong>21-23 submissions (75-82%)</strong> are likely to meet all requirements. However, final judgment on subjective criteria (writing quality, genuine human voice) remains with you.
+                </div>
+            </div>
+
+            <div class="comparison-box">
+                <div class="comparison-title">Common Issues Found</div>
+                <div class="comparison-text">
+                    • Too short: 3 submissions under 50 characters
+                    <br>
+                    • Too long: 1 submission over 200 characters
+                    <br>
+                    • Missing citation: 2 submissions don't name album/artist
+                    <br>
+                    • AI-suspected: 3 submissions with generic phrasing
+                </div>
+            </div>
+
+            <div class="comparison-box">
+                <div class="comparison-title">Your Past Similar Bounty</div>
+                <div class="comparison-text">
+                    Album Reviews (June 2024): 34 submissions
+                    <br><br>
+                    <strong>Your decisions:</strong>
+                    <br>
+                    • 26 passed (76%)
+                    <br>
+                    • 8 failed (24%)
+                    <br><br>
+                    Common fail reasons: Length violations (5), AI-generated (2), Missing citations (1)
+                </div>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <div class="ai-alert">
+                <div class="ai-alert-title">
+                    💡 Recommendation
+                </div>
+                <div class="ai-alert-content">
+                    Start with edge cases (flagged submissions) to establish your standards, then batch-review the clear passes. This ensures consistency.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="action-buttons">
+        <button class="btn btn-draft">Save Draft</button>
+        <button class="btn btn-finalize" id="finalizeBtn" onclick="finalizeEvaluation()" disabled>
+            Finalize & Process Payouts
+        </button>
+    </div>
+
+    <script>
+        const sampleSubmissions = [
+            {
+                id: 1,
+                contributor: "Alex Chen",
+                initials: "AC",
+                content: "Folklore by Taylor Swift is a masterpiece of introspective songwriting. The stripped-down production lets her storytelling shine, with tracks like 'cardigan' and 'exile' showcasing emotional depth.",
+                charCount: 178,
+                timestamp: "2 hours ago",
+                criteria: {
+                    minLength: true,
+                    maxLength: true,
+                    citation: true,
+                    notAI: true,
+                    appropriate: true
+                },
+                aiChecks: {
+                    minLength: "pass",
+                    maxLength: "pass",
+                    citation: "pass",
+                    notAI: "pass",
+                    appropriate: "pass"
+                }
+            },
+            {
+                id: 2,
+                contributor: "Maria Garcia",
+                initials: "MG",
+                content: "Great album!",
+                charCount: 13,
+                timestamp: "3 hours ago",
+                criteria: {
+                    minLength: false,
+                    maxLength: true,
+                    citation: false,
+                    notAI: true,
+                    appropriate: true
+                },
+                aiChecks: {
+                    minLength: "fail",
+                    maxLength: "pass",
+                    citation: "fail",
+                    notAI: "pass",
+                    appropriate: "pass"
+                }
+            },
+            {
+                id: 3,
+                contributor: "James Wilson",
+                initials: "JW",
+                content: "The Beatles' Abbey Road represents the pinnacle of rock innovation. From the iconic bassline of 'Come Together' to the medley's seamless transitions, this album showcases unparalleled musical craftsmanship.",
+                charCount: 203,
+                timestamp: "4 hours ago",
+                criteria: {
+                    minLength: true,
+                    maxLength: false,
+                    citation: true,
+                    notAI: true,
+                    appropriate: true
+                },
+                aiChecks: {
+                    minLength: "pass",
+                    maxLength: "fail",
+                    citation: "pass",
+                    notAI: "pass",
+                    appropriate: "pass"
+                }
+            },
+            {
+                id: 4,
+                contributor: "Sarah Thompson",
+                initials: "ST",
+                content: "This musical composition demonstrates exceptional artistic merit through its innovative sonic landscapes and profound lyrical narratives. The production quality exemplifies contemporary excellence.",
+                charCount: 187,
+                timestamp: "5 hours ago",
+                criteria: {
+                    minLength: true,
+                    maxLength: true,
+                    citation: false,
+                    notAI: false,
+                    appropriate: true
+                },
+                aiChecks: {
+                    minLength: "pass",
+                    maxLength: "pass",
+                    citation: "fail",
+                    notAI: "fail",
+                    appropriate: "pass"
+                }
+            },
+            {
+                id: 5,
+                contributor: "David Lee",
+                initials: "DL",
+                content: "Rumours by Fleetwood Mac is raw emotional honesty set to perfect pop-rock arrangements. Every song tells a story of heartbreak and hope. Timeless classic.",
+                charCount: 152,
+                timestamp: "6 hours ago",
+                criteria: {
+                    minLength: true,
+                    maxLength: true,
+                    citation: true,
+                    notAI: true,
+                    appropriate: true
+                },
+                aiChecks: {
+                    minLength: "pass",
+                    maxLength: "pass",
+                    citation: "pass",
+                    notAI: "pass",
+                    appropriate: "pass"
+                }
+            }
+        ];
+        
+        // Generate additional submissions
+        const names = ["Emma Roberts", "Michael Brown", "Lisa Anderson", "Chris Martinez", "Jessica Taylor", 
+                       "Ryan Moore", "Amanda White", "Kevin Harris", "Nicole Clark", "Daniel Lewis",
+                       "Rachel Green", "Tom Baker", "Sophie Turner", "Mark Wilson", "Jenny Kim",
+                       "Paul Walker", "Laura Mitchell", "Steve Rogers", "Anna Johnson", "Mike Davis",
+                       "Katie Perry", "John Smith", "Amy Adams"];
+        
+        const albums = [
+            { album: "Kind of Blue", artist: "Miles Davis" },
+            { album: "Pet Sounds", artist: "Beach Boys" },
+            { album: "What's Going On", artist: "Marvin Gaye" },
+            { album: "Thriller", artist: "Michael Jackson" },
+            { album: "Born to Run", artist: "Bruce Springsteen" },
+            { album: "Purple Rain", artist: "Prince" },
+            { album: "The Miseducation of Lauryn Hill", artist: "Lauryn Hill" },
+            { album: "OK Computer", artist: "Radiohead" },
+            { album: "My Beautiful Dark Twisted Fantasy", artist: "Kanye West" },
+            { album: "Blonde", artist: "Frank Ocean" }
+        ];
+        
+        for (let i = 6; i <= 28; i++) {
+            const name = names[i - 6];
+            const initials = name.split(' ').map(n => n[0]).join('');
+            const albumInfo = albums[Math.floor(Math.random() * albums.length)];
+            
+            const hasAllCriteria = Math.random() > 0.25;
+            const charCount = hasAllCriteria ? Math.floor(Math.random() * 120) + 60 : Math.floor(Math.random() * 40) + 10;
+            
+            sampleSubmissions.push({
+                id: i,
+                contributor: name,
+                initials: initials,
+                content: hasAllCriteria 
+                    ? `${albumInfo.album} by ${albumInfo.artist} is an incredible journey through sound. The production is stellar and the songwriting deeply personal. Highly recommended.`
+                    : `This album is amazing and everyone should listen to it.`,
+                charCount: charCount,
+                timestamp: `${i} hours ago`,
+                criteria: {
+                    minLength: hasAllCriteria,
+                    maxLength: hasAllCriteria,
+                    citation: hasAllCriteria,
+                    notAI: hasAllCriteria,
+                    appropriate: true
+                },
+                aiChecks: {
+                    minLength: hasAllCriteria ? "pass" : "fail",
+                    maxLength: hasAllCriteria ? "pass" : (Math.random() > 0.9 ? "fail" : "pass"),
+                    citation: hasAllCriteria ? "pass" : "fail",
+                    notAI: hasAllCriteria ? "pass" : (Math.random() > 0.8 ? "fail" : "pass"),
+                    appropriate: "pass"
+                }
+            });
+        }
+        
+        let currentFilter = 'all';
+        
+        function renderSubmissions() {
+            const grid = document.getElementById('submissionGrid');
+            grid.innerHTML = '';
+            
+            const filteredSubmissions = sampleSubmissions.filter(sub => {
+                if (currentFilter === 'all') return true;
+                if (currentFilter === 'pending') return sub.status === undefined;
+                if (currentFilter === 'passed') return sub.status === 'passed';
+                if (currentFilter === 'failed') return sub.status === 'failed';
+            });
+            
+            filteredSubmissions.forEach(submission => {
+                const card = createSubmissionCard(submission);
+                grid.appendChild(card);
+            });
+            
+            updateCounts();
+        }
+        
+        function createSubmissionCard(submission) {
+            const card = document.createElement('div');
+            card.className = `submission-card ${submission.status || ''}`;
+            card.id = `submission-${submission.id}`;
+            
+            const allPassed = submission.manualChecks ? 
+                Object.values(submission.manualChecks).every(v => v) : false;
+            
+            card.innerHTML = `
+                <div class="submission-header">
+                    <div class="contributor-info">
+                        <div class="avatar-small">${submission.initials}</div>
+                        <div class="contributor-name">${submission.contributor}</div>
+                    </div>
+                    <div class="submission-status ${submission.status || 'pending'}">
+                        ${submission.status || 'pending'}
+                    </div>
+                </div>
+                
+                <div class="submission-content">${submission.content}</div>
+                
+                <div class="submission-meta">
+                    <span>${submission.charCount} characters</span>
+                    <span>${submission.timestamp}</span>
+                </div>
+                
+                <div class="criteria-checklist">
+                    <div class="criteria-title">Requirements Checklist</div>
+                    
+                    <div class="criterion-item">
+                        <div class="criterion-checkbox ${submission.manualChecks?.minLength ? 'checked' : ''}" 
+                             onclick="toggleCriterion(${submission.id}, 'minLength')">
+                        </div>
+                        <div class="criterion-label">Minimum 50 characters</div>
+                        <div class="ai-check-indicator ${submission.aiChecks.minLength}">
+                            AI: ${submission.aiChecks.minLength === 'pass' ? '✓' : '✗'}
+                        </div>
+                    </div>
+                    
+                    <div class="criterion-item">
+                        <div class="criterion-checkbox ${submission.manualChecks?.maxLength ? 'checked' : ''}" 
+                             onclick="toggleCriterion(${submission.id}, 'maxLength')">
+                        </div>
+                        <div class="criterion-label">Maximum 200 characters</div>
+                        <div class="ai-check-indicator ${submission.aiChecks.maxLength}">
+                            AI: ${submission.aiChecks.maxLength === 'pass' ? '✓' : '✗'}
+                        </div>
+                    </div>
+                    
+                    <div class="criterion-item">
+                        <div class="criterion-checkbox ${submission.manualChecks?.citation ? 'checked' : ''}" 
+                             onclick="toggleCriterion(${submission.id}, 'citation')">
+                        </div>
+                        <div class="criterion-label">Cites album and artist</div>
+                        <div class="ai-check-indicator ${submission.aiChecks.citation}">
+                            AI: ${submission.aiChecks.citation === 'pass' ? '✓' : '✗'}
+                        </div>
+                    </div>
+                    
+                    <div class="criterion-item">
+                        <div class="criterion-checkbox ${submission.manualChecks?.notAI ? 'checked' : ''}" 
+                             onclick="toggleCriterion(${submission.id}, 'notAI')">
+                        </div>
+                        <div class="criterion-label">Human-written (not AI)</div>
+                        <div class="ai-check-indicator ${submission.aiChecks.notAI}">
+                            AI: ${submission.aiChecks.notAI === 'pass' ? '✓' : '✗'}
+                        </div>
+                    </div>
+                    
+                    <div class="criterion-item">
+                        <div class="criterion-checkbox ${submission.manualChecks?.appropriate ? 'checked' : ''}" 
+                             onclick="toggleCriterion(${submission.id}, 'appropriate')">
+                        </div>
+                        <div class="criterion-label">No profanity/spam</div>
+                        <div class="ai-check-indicator ${submission.aiChecks.appropriate}">
+                            AI: ${submission.aiChecks.appropriate === 'pass' ? '✓' : '✗'}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="decision-buttons">
+                    <button class="btn-pass" onclick="markSubmission(${submission.id}, 'pass')">
+                        Pass
+                    </button>
+                    <button class="btn-fail" onclick="markSubmission(${submission.id}, 'fail')">
+                        Fail
+                    </button>
+                </div>
+                
+                <div class="feedback-section ${submission.status === 'failed' ? 'visible' : ''}" id="feedback-${submission.id}">
+                    <textarea class="feedback-textarea" placeholder="Optional: Explain why this submission failed..." 
+                              id="feedback-text-${submission.id}">${submission.feedback || ''}</textarea>
+                </div>
+            `;
+            
+            return card;
+        }
+        
+        function toggleCriterion(submissionId, criterion) {
+            const submission = sampleSubmissions.find(s => s.id === submissionId);
+            if (!submission.manualChecks) {
+                submission.manualChecks = {};
+            }
+            submission.manualChecks[criterion] = !submission.manualChecks[criterion];
+            renderSubmissions();
+        }
+        
+        function markSubmission(submissionId, status) {
+            const submission = sampleSubmissions.find(s => s.id === submissionId);
+            submission.status = status === 'pass' ? 'passed' : 'failed';
+            
+            if (status === 'pass') {
+                // Auto-check all criteria when passing
+                submission.manualChecks = {
+                    minLength: true,
+                    maxLength: true,
+                    citation: true,
+                    notAI: true,
+                    appropriate: true
+                };
+            }
+            
+            renderSubmissions();
+            checkAllEvaluated();
+        }
+        
+        function updateCounts() {
+            const total = sampleSubmissions.length;
+            const passed = sampleSubmissions.filter(s => s.status === 'passed').length;
+            const failed = sampleSubmissions.filter(s => s.status === 'failed').length;
+            const pending = total - passed - failed;
+            
+            document.getElementById('totalCount').textContent = total;
+            document.getElementById('passedCount').textContent = passed;
+            document.getElementById('failedCount').textContent = failed;
+            document.getElementById('pendingCount').textContent = pending;
+            
+            document.getElementById('filterPendingCount').textContent = pending;
+            document.getElementById('filterPassedCount').textContent = passed;
+            document.getElementById('filterFailedCount').textContent = failed;
+            
+            document.getElementById('passingSubmissions').textContent = passed;
+            
+            if (passed > 0) {
+                const perSubmission = Math.floor(10000 / passed);
+                document.getElementById('perSubmissionPayout').textContent = `${perSubmission.toLocaleString()} points`;
+                document.getElementById('payoutResult').textContent = 
+                    `${passed} × ${perSubmission.toLocaleString()} = ${(passed * perSubmission).toLocaleString()} points`;
+            } else {
+                document.getElementById('perSubmissionPayout').textContent = '—';
+                document.getElementById('payoutResult').textContent = 'No passing submissions yet';
+            }
+        }
+        
+        function checkAllEvaluated() {
+            const allEvaluated = sampleSubmissions.every(s => s.status !== undefined);
+            document.getElementById('finalizeBtn').disabled = !allEvaluated;
+        }
+        
+        function filterSubmissions(filter) {
+            currentFilter = filter;
+            
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            renderSubmissions();
+        }
+        
+        function toggleAIPanel() {
+            const panel = document.getElementById('aiPanel');
+            const toggleText = document.getElementById('toggleText');
+            
+            if (panel.classList.contains('hidden')) {
+                panel.classList.remove('hidden');
+                toggleText.textContent = 'Hide AI Assistant';
+            } else {
+                panel.classList.add('hidden');
+                toggleText.textContent = 'Show AI Assistant';
+            }
+        }
+        
+        function finalizeEvaluation() {
+            const passed = sampleSubmissions.filter(s => s.status === 'passed').length;
+            const failed = sampleSubmissions.filter(s => s.status === 'failed').length;
+            const perSubmission = Math.floor(10000 / passed);
+            
+            if (confirm(`Finalize evaluation?\n\n${passed} passing submissions × ${perSubmission.toLocaleString()} points = ${(passed * perSubmission).toLocaleString()} points total\n${failed} submissions will receive no payout`)) {
+                alert('Evaluation finalized! Payouts processed.');
+            }
+        }
+        
+        // Initialize
+        renderSubmissions();
+    </script>
+    </div>
+</body>
+</html>

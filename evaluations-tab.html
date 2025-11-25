@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluations - Curator App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #fafafa;
+            color: #1a1a1a;
+        }
+        
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 72px;
+            height: 100vh;
+            background: white;
+            border-right: 1px solid #e5e5e5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+            gap: 20px;
+        }
+        
+        .sidebar-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+            color: #666;
+        }
+        
+        .sidebar-icon:hover {
+            background: #f5f5f5;
+        }
+        
+        .sidebar-icon.active {
+            background: #ede9fe;
+            color: #7c3aed;
+        }
+        
+        .main-content {
+            margin-left: 72px;
+            padding: 30px 40px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+        
+        .points-display {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 32px;
+            font-weight: 700;
+        }
+        
+        .points-icon {
+            width: 36px;
+            height: 36px;
+            background: #7c3aed;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .points-badge {
+            background: #ede9fe;
+            color: #7c3aed;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .points-badge-icon {
+            width: 16px;
+            height: 16px;
+            background: #7c3aed;
+            border-radius: 50%;
+        }
+        
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+        }
+        
+        .section {
+            background: white;
+            border: 1px solid #e5e5e5;
+            border-radius: 12px;
+            padding: 0;
+            overflow: hidden;
+        }
+        
+        .section-header {
+            padding: 24px 24px 20px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 16px;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .tab {
+            padding: 8px 16px;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .tab:hover {
+            color: #1a1a1a;
+        }
+        
+        .tab.active {
+            color: #1a1a1a;
+            border-bottom-color: #7c3aed;
+        }
+        
+        .tab-badge {
+            display: inline-block;
+            background: #ef4444;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 11px;
+            margin-left: 6px;
+            font-weight: 700;
+        }
+        
+        .filters {
+            display: flex;
+            gap: 12px;
+            padding: 16px 24px;
+            border-bottom: 1px solid #e5e5e5;
+            background: #fafafa;
+        }
+        
+        .filter-dropdown {
+            padding: 8px 12px;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            background: white;
+            font-size: 13px;
+            cursor: pointer;
+            color: #1a1a1a;
+            font-weight: 500;
+        }
+        
+        .filter-dropdown:hover {
+            border-color: #7c3aed;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            font-size: 13px;
+            background: white;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #7c3aed;
+        }
+        
+        .feed {
+            padding: 20px 24px;
+        }
+        
+        .feed-item {
+            border: 1px solid #e5e5e5;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .feed-item:hover {
+            border-color: #7c3aed;
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.1);
+        }
+        
+        .feed-item.urgent {
+            border-left: 4px solid #ef4444;
+        }
+        
+        .feed-item.near-deadline {
+            border-left: 4px solid #f59e0b;
+        }
+        
+        .feed-item.active {
+            border-left: 4px solid #10b981;
+        }
+        
+        .feed-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        
+        .feed-item-icon {
+            width: 40px;
+            height: 40px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        
+        .feed-item-content {
+            flex: 1;
+            margin-left: 16px;
+        }
+        
+        .feed-item-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 6px;
+        }
+        
+        .feed-item-details {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .feed-item-meta {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .badge.low {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .badge.medium {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .badge.high {
+            background: #fce7f3;
+            color: #9f1239;
+        }
+        
+        .badge.urgent {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .badge.near-deadline {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .badge.active {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .space-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .space-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            background: #7c3aed;
+        }
+        
+        .timestamp {
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .feed-item-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #f5f5f5;
+        }
+        
+        .action-btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .action-btn.primary {
+            background: #7c3aed;
+            color: white;
+        }
+        
+        .action-btn.primary:hover {
+            background: #6d28d9;
+        }
+        
+        .action-btn.secondary {
+            background: #f5f5f5;
+            color: #666;
+        }
+        
+        .action-btn.secondary:hover {
+            background: #e5e5e5;
+        }
+        
+        .editor-update {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            background: #f0f9ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #1e40af;
+            margin-top: 12px;
+        }
+        
+        .editor-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .empty-state {
+            padding: 80px 20px;
+            text-align: center;
+        }
+        
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        
+        .empty-state-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+        
+        .empty-state-text {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .empty-state-btn {
+            padding: 12px 24px;
+            background: #7c3aed;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .empty-state-btn:hover {
+            background: #6d28d9;
+        }
+        
+        /* Community Calls Section */
+        .calls-section {
+            padding: 24px;
+        }
+        
+        .call-item {
+            padding: 16px;
+            border: 1px solid #e5e5e5;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            transition: all 0.2s;
+        }
+        
+        .call-item:hover {
+            border-color: #7c3aed;
+            box-shadow: 0 2px 8px rgba(124, 58, 237, 0.1);
+        }
+        
+        .call-date {
+            font-size: 15px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 16px;
+        }
+        
+        .call-event {
+            margin-bottom: 12px;
+        }
+        
+        .call-event:last-child {
+            margin-bottom: 0;
+        }
+        
+        .call-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+        
+        .call-time {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        .call-meta {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .status-update-item {
+            background: #fafafa;
+            border: 1px solid #e5e5e5;
+        }
+        
+        .status-update-item .feed-item-icon {
+            background: #e0e7ff;
+            color: #4c51bf;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-icon">☰</div>
+        <div class="sidebar-icon active">◎</div>
+        <div class="sidebar-icon">◇</div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="header">
+            <div class="points-display">
+                <div class="points-icon">△</div>
+                3,000
+            </div>
+            <div class="user-profile">
+                <div class="points-badge">
+                    <div class="points-badge-icon"></div>
+                    3000
+                </div>
+                <div class="avatar"></div>
+            </div>
+        </div>
+
+        <!-- Content Grid -->
+        <div class="content-grid">
+            <!-- Left Column: Recommended For You -->
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Recommended for you</h2>
+                    <div class="tabs">
+                        <button class="tab">Bounties</button>
+                        <button class="tab">Spaces</button>
+                        <button class="tab active">
+                            Evaluations
+                            <span class="tab-badge">8</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="filters">
+                    <select class="filter-dropdown">
+                        <option>All</option>
+                        <option>Pending Reviews</option>
+                        <option>Bounty Updates</option>
+                        <option>Completed</option>
+                    </select>
+                    <select class="filter-dropdown">
+                        <option>All Types</option>
+                        <option>Low Bounties</option>
+                        <option>Medium Bounties</option>
+                        <option>High Bounties</option>
+                    </select>
+                    <select class="filter-dropdown">
+                        <option>By Date</option>
+                        <option>By Deadline</option>
+                        <option>By Urgency</option>
+                    </select>
+                    <input type="text" class="search-input" placeholder="Search bounties...">
+                </div>
+
+                <div class="feed">
+                    <!-- Urgent Evaluation -->
+                    <div class="feed-item urgent">
+                        <div class="feed-item-header">
+                            <div style="display: flex; align-items: flex-start; flex: 1;">
+                                <div class="feed-item-icon">📝</div>
+                                <div class="feed-item-content">
+                                    <div class="feed-item-title">New submissions for "Write podcast reviews"</div>
+                                    <div class="feed-item-details">12 submissions awaiting evaluation</div>
+                                    <div class="feed-item-meta">
+                                        <span class="badge low">Low Bounty</span>
+                                        <span class="badge urgent">Deadline passed</span>
+                                        <div class="space-badge">
+                                            <div class="space-icon"></div>
+                                            Podcasts
+                                        </div>
+                                        <span class="timestamp">2 hours ago</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="editor-update">
+                            <div class="editor-avatar"></div>
+                            <span>Sarah reviewed 5 submissions 1 hour ago</span>
+                        </div>
+                        <div class="feed-item-actions">
+                            <button class="action-btn primary" onclick="alert('Navigating to Low Bounty Evaluation Screen...')">Review Submissions</button>
+                            <button class="action-btn secondary">Dismiss</button>
+                        </div>
+                    </div>
+
+                    <!-- Near Deadline Evaluation -->
+                    <div class="feed-item near-deadline">
+                        <div class="feed-item-header">
+                            <div style="display: flex; align-items: flex-start; flex: 1;">
+                                <div class="feed-item-icon">📋</div>
+                                <div class="feed-item-content">
+                                    <div class="feed-item-title">New submissions for "Research podcast data sources"</div>
+                                    <div class="feed-item-details">8 submissions awaiting evaluation</div>
+                                    <div class="feed-item-meta">
+                                        <span class="badge medium">Medium Bounty</span>
+                                        <span class="badge near-deadline">Deadline in 2 days</span>
+                                        <div class="space-badge">
+                                            <div class="space-icon"></div>
+                                            Podcasts
+                                        </div>
+                                        <span class="timestamp">5 hours ago</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="feed-item-actions">
+                            <button class="action-btn primary" onclick="alert('Navigating to Medium Bounty Evaluation Screen...')">Review Submissions</button>
+                            <button class="action-btn secondary">Dismiss</button>
+                        </div>
+                    </div>
+
+                    <!-- Active Evaluation -->
+                    <div class="feed-item active">
+                        <div class="feed-item-header">
+                            <div style="display: flex; align-items: flex-start; flex: 1;">
+                                <div class="feed-item-icon">⭐</div>
+                                <div class="feed-item-content">
+                                    <div class="feed-item-title">New submission for "Scrape top 200k podcasts"</div>
+                                    <div class="feed-item-details">1 submission awaiting evaluation</div>
+                                    <div class="feed-item-meta">
+                                        <span class="badge high">High Bounty</span>
+                                        <span class="badge active">Active</span>
+                                        <div class="space-badge">
+                                            <div class="space-icon"></div>
+                                            Podcasts
+                                        </div>
+                                        <span class="timestamp">1 day ago</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="feed-item-actions">
+                            <button class="action-btn primary" onclick="alert('Navigating to Hard Bounty Evaluation Screen...')">Review Submission</button>
+                            <button class="action-btn secondary">Dismiss</button>
+                        </div>
+                    </div>
+
+                    <!-- Status Update: Bounty Closed -->
+                    <div class="feed-item status-update-item">
+                        <div class="feed-item-header">
+                            <div style="display: flex; align-items: flex-start; flex: 1;">
+                                <div class="feed-item-icon">ℹ️</div>
+                                <div class="feed-item-content">
+                                    <div class="feed-item-title">Bounty "Add people to crypto" application period ended</div>
+                                    <div class="feed-item-details">15 applicants received - ready to select curators</div>
+                                    <div class="feed-item-meta">
+                                        <span class="badge low">Low Bounty</span>
+                                        <div class="space-badge">
+                                            <div class="space-icon"></div>
+                                            Crypto
+                                        </div>
+                                        <span class="timestamp">3 hours ago</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="feed-item-actions">
+                            <button class="action-btn primary" onclick="alert('Navigating to Applicant Selection Screen...')">Select Curators</button>
+                            <button class="action-btn secondary">View Bounty</button>
+                        </div>
+                    </div>
+
+                    <!-- Status Update: Bounty Completed -->
+                    <div class="feed-item status-update-item">
+                        <div class="feed-item-header">
+                            <div style="display: flex; align-items: flex-start; flex: 1;">
+                                <div class="feed-item-icon">✅</div>
+                                <div class="feed-item-content">
+                                    <div class="feed-item-title">Bounty "Publish unique crypto projects" finalized</div>
+                                    <div class="feed-item-details">46,956 points distributed to 18 contributors</div>
+                                    <div class="feed-item-meta">
+                                        <span class="badge low">Low Bounty</span>
+                                        <div class="space-badge">
+                                            <div class="space-icon"></div>
+                                            Crypto
+                                        </div>
+                                        <span class="timestamp">1 day ago</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="feed-item-actions">
+                            <button class="action-btn primary" onclick="alert('Navigating to Bounty Results...')">View Results</button>
+                            <button class="action-btn secondary">Mark as Read</button>
+                        </div>
+                    </div>
+
+                    <!-- Status Update: New Bounty -->
+                    <div class="feed-item status-update-item">
+                        <div class="feed-item-header">
+                            <div style="display: flex; align-items: flex-start; flex: 1;">
+                                <div class="feed-item-icon">🎯</div>
+                                <div class="feed-item-content">
+                                    <div class="feed-item-title">New bounty "Document health protocols" is now accepting applications</div>
+                                    <div class="feed-item-details">10 slots available for Medium Bounty</div>
+                                    <div class="feed-item-meta">
+                                        <span class="badge medium">Medium Bounty</span>
+                                        <div class="space-badge">
+                                            <div class="space-icon" style="background: #10b981;"></div>
+                                            Health
+                                        </div>
+                                        <span class="timestamp">2 days ago</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="feed-item-actions">
+                            <button class="action-btn primary" onclick="alert('Navigating to Bounty Details...')">View Bounty</button>
+                            <button class="action-btn secondary">Dismiss</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Community Calls -->
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Community calls</h2>
+                </div>
+                <div class="filters">
+                    <select class="filter-dropdown">
+                        <option>All spaces</option>
+                        <option>Crypto</option>
+                        <option>Podcasts</option>
+                        <option>Health</option>
+                    </select>
+                    <select class="filter-dropdown">
+                        <option>All</option>
+                        <option>Going</option>
+                        <option>Maybe</option>
+                    </select>
+                </div>
+                <div class="calls-section">
+                    <div class="call-item">
+                        <div class="call-date">Tuesday, October 27</div>
+                        <div class="call-event">
+                            <div class="call-title">Weekly ontology call</div>
+                            <div class="call-time">🕐 4:00pm - 6:00pm</div>
+                            <div class="call-meta">
+                                <div class="space-badge">
+                                    <div class="space-icon" style="background: #ef4444;"></div>
+                                    Regions
+                                </div>
+                                <span>👥 37 going</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="call-item">
+                        <div class="call-date">Tuesday, October 27</div>
+                        <div class="call-event">
+                            <div class="call-title">News articles discussion</div>
+                            <div class="call-time">🕐 4:30pm - 5:00pm</div>
+                            <div class="call-meta">
+                                <div class="space-badge">
+                                    <div class="space-icon"></div>
+                                    Crypto
+                                </div>
+                                <span>👥 12 going</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="call-item">
+                        <div class="call-date">Thursday, October 29</div>
+                        <div class="call-event">
+                            <div class="call-title">Let's talk types!</div>
+                            <div class="call-time">🕐 12:00am - 1:00pm</div>
+                            <div class="call-meta">
+                                <div class="space-badge">
+                                    <div class="space-icon" style="background: #f59e0b;"></div>
+                                    San Francisco
+                                </div>
+                                <span>👥 0 going</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Demo interactions
+        console.log('Evaluations tab loaded with 8 pending items');
+    </script>
+</body>
+</html>
